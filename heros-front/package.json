@@ -1,0 +1,53 @@
+{
+    "name": "heros-front",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@ant-design/icons": "^4.7.0",
+        "@mdi/js": "^6.5.95",
+        "@mdi/react": "^1.5.0",
+        "@rjsf/antd": "^3.2.1",
+        "@rjsf/core": "^3.2.1",
+        "@testing-library/jest-dom": "^5.16.1",
+        "@testing-library/react": "^12.1.2",
+        "@testing-library/user-event": "^13.5.0",
+        "antd": "^4.18.3",
+        "axios": "^0.24.0",
+        "axios-concurrency": "^1.0.4",
+        "handlebars": "^4.7.7",
+        "i18n-react": "^0.7.0",
+        "lodash.debounce": "^4.0.8",
+        "query-string": "^7.0.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-jss": "^10.9.0",
+        "react-router-dom": "^6.2.1",
+        "react-scripts": "5.0.0",
+        "uuidv4": "^6.2.12",
+        "web-vitals": "^2.1.4"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
