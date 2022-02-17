@@ -8,7 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from heros.api.serializers import UserSerializer, GroupSerializer, DocumentSerializer, DocumentRelationSerializer
+# from heros.api.serializers import UserSerializer, GroupSerializer, DocumentSerializer, DocumentRelationSerializer
+from heros.api.serializers import UserSerializer, GroupSerializer, DocumentSerializer
 from heros.api.models import Document, DocumentRelation
 import datetime
 import json
@@ -80,10 +81,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Response()
 
 
-class DocumentRelationViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = DocumentRelation.objects.all()
-    serializer_class = DocumentRelationSerializer
-    # permission_classes = [permissions.IsAuthenticated]        
+# class DocumentRelationViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows groups to be viewed or edited.
+#     """
+#     queryset = DocumentRelation.objects.all()
+#     serializer_class = DocumentRelationSerializer
+#     # permission_classes = [permissions.IsAuthenticated]        
