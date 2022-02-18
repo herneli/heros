@@ -5,7 +5,7 @@ import DocumentRegistry from "./DocumentRegistry";
 
 const registry = new DocumentRegistry();
 
-export default function Document({ id, documentType, code }) {
+export default function Document({ id, documentType, code, displayMode = "edit" }) {
     const [document, setDocument] = useState();
     useEffect(() => {
         if (id) {
@@ -22,6 +22,16 @@ export default function Document({ id, documentType, code }) {
     if (!document) {
         return <Spin />;
     }
-    const Component = registry.getComponent(document.document_type);
-    return <Component document={document} />;
+
+    const documentRegistry = registry.getRegistry(document.documentType);
+    let Component;
+    switch (displayMode) {
+        case "edit":
+            Component = documentRegistry.Edit;
+            return <Component document={document} displayMode={displayMode} />;
+        case "card":
+            Component = documentRegistry.Card;
+            return <Component document={document} displayMode={displayMode} />;
+    }
+    return null;
 }

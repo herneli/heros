@@ -18,7 +18,7 @@ function App() {
         <ConfigProvider locale={locale}>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route index element={<Document documentType="folder" code="root" />} />
+                    <Route index element={<Document documentType="folder" code="root" displayMode="edit" />} />
                 </Route>
             </Routes>
         </ConfigProvider>

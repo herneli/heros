@@ -1,5 +1,9 @@
+import DocumentCard from "../DocumentCard";
 import Folder from "./Folder";
 
 export default {
-    Component: Folder,
+    Edit: Folder,
+    Card: DocumentCard,
+    emoji: "🎹",
+    name: "Carpeta",
 };

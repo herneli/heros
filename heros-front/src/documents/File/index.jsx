@@ -1,4 +1,8 @@
+import DocumentCard from "../DocumentCard";
 import File from "./File";
 export default {
-    Component: File,
+    Edit: File,
+    Card: DocumentCard,
+    emoji: "🥁",
+    name: "Fichero",
 };

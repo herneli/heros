@@ -6,12 +6,12 @@ export default function Folder({ document }) {
         <div>
             <div>Folder {document.data.name}</div>
             <ul>
-                {document.relations_as_base
+                {document.relationsAsBase
                     .filter((doc) => doc.relation === "children")
                     .map((doc) => {
                         return (
                             <li key={doc.id}>
-                                <Document id={doc.document_related.id} />
+                                <Document id={doc.documentRelated.id} displayMode="card" />
                             </li>
                         );
                     })}
