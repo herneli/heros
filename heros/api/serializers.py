@@ -53,7 +53,8 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ['id','code','data','relations_as_base','relations_as_related']
+        fields = ['id','document_type',
+        'code','data','relations_as_base','relations_as_related']
         #To authomatize rendering of nested relations without specific serializer
         #depth = 1 
 
