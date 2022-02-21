@@ -3,6 +3,6 @@ import File from "./File";
 export default {
     Edit: File,
     Card: DocumentCard,
-    emoji: "🥁",
+    emoji: "📄",
     name: "Fichero",
 };

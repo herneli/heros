@@ -6,7 +6,7 @@ export default function DocumentCard({ document }) {
     const documentRegistry = registry.getRegistry(document.documentType);
     return (
         <div>
-            Document Card {documentRegistry.emoji} {document.data.name}{" "}
+            Document Card {documentRegistry.emoji} {document.data.name}
         </div>
     );
 }

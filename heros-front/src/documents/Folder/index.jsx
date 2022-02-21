@@ -4,6 +4,6 @@ import Folder from "./Folder";
 export default {
     Edit: Folder,
     Card: DocumentCard,
-    emoji: "🎹",
+    emoji: "📁",
     name: "Carpeta",
 };
