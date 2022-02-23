@@ -6,7 +6,7 @@ class Document(models.Model):
     code = models.CharField(max_length=50)
     data = models.JSONField()
     deleted = models.BooleanField(default=False)
-    deleted_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True,blank=True)
 
     def __str__(self):
         return self.code

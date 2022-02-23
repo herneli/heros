@@ -11,7 +11,7 @@ export default function Folder({ document }) {
                     .map((doc) => {
                         return (
                             <li key={doc.id}>
-                                <Document id={doc.documentRelated.id} displayMode="card" />
+                                <Document document={doc.documentRelated} displayMode="card" />
                             </li>
                         );
                     })}
