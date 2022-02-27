@@ -1,7 +1,6 @@
 import React from "react";
 import Expression from "./Expression";
 import ParamEditor from "./ParamEditor";
-import T from "i18n-react";
 import Icon from "@mdi/react";
 import { mdiPencil as editIcon } from "@mdi/js";
 

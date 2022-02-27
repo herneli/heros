@@ -1,9 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import Expression from "../expressions/Expression";
 import { getUiOptions } from "@rjsf/core/lib/utils";
 import { useScriptContext } from "../ScriptContext";
 import { Form } from "antd";
-import { classExpression } from "@babel/types";
 import { createUseStyles } from "react-jss";
 
 const useStyles = createUseStyles({

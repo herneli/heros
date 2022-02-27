@@ -1,39 +1,22 @@
 import React from "react";
 import T from "i18n-react";
-import { createUseStyles } from "react-jss";
 import ExpressionWrapper from "./ExpressionWrapper";
-import { Button } from "antd";
 import StatementBox from "../StatementBox";
 import { useScriptContext } from "../../ScriptContext";
 import registry from ".";
 import { mdiPlus } from "@mdi/js";
 import ReactDragListView from "react-drag-listview";
 
-let useStyles = createUseStyles({
-    addExpressionButton: {
-        marginRight: 5,
-        float: "right",
-        textTransform: "none",
-        color: "dodgerblue",
-        fontSize: 12,
-    },
-
-    statementFooter: {
-        display: "table",
-        fontSize: 14,
-        marginTop: 5,
-        width: "100%",
-    },
-});
-
 export default function StatementExpressionGroup({ statement, variables, onChange, onDelete }) {
-    const classes = useStyles();
     const { manager } = useScriptContext();
 
     const handleOnCustomAction = (code) => {
         switch (code) {
             case "addExpression":
                 handleAddExpression();
+                break;
+            default:
+                throw Error("Action not expecte4d");
         }
     };
     const handleAddExpression = () => {

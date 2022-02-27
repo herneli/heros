@@ -4,7 +4,6 @@ import SelectRemoteWidget from "./SelectRemoteWidget";
 import SelectRemoteWithPackageWidget from "./SelectRemoteWithPackageWidget";
 import AceEditorWidget from "./AceEditorWidget";
 import ScriptField from "./ScriptField";
-import SwitchField from "./SwitchField";
 import ColorField from "./ColorField";
 
 const formOptions = {

@@ -1,7 +1,7 @@
 import React from "react";
 
 import AceEditor from "../ace-editor/AceEditor";
-
+// eslint-disable-next-line
 const AceEditorWidget = function ({ id, value, onChange, options, readonly }) {
     let mode = options.mode;
     if (mode === "json_text") {

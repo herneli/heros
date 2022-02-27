@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import * as api from "./api";
 import errorHandler from "./errorHandler";
@@ -14,27 +14,46 @@ const ModelAdmin = ({ buttonsConfig, model }) => {
 
     let navigate = useNavigate();
     const packageData = usePackage();
+    const search = useCallback(
+        async (filters) => {
+            let searchFilters = { ...filters };
+            if (packageData) {
+                searchFilters["package_version_id__in"] = packageData.currentVersion.id;
+            }
+            try {
+                const modelConfig = await api.getModelInfo(model);
+                const modelData = await api.getModelDataList(model, searchFilters);
+                setModelConfig({
+                    modelInfo: modelConfig,
+                    modelData: modelData,
+                });
+            } catch (ex) {
+                errorHandler(ex);
+            }
+        },
+        [model, packageData]
+    );
 
     useEffect(() => {
         search();
-    }, [model]);
+    }, [search, model]);
 
-    const search = async (filters) => {
-        let searchFilters = { ...filters };
-        if (packageData) {
-            searchFilters["package_version_id__in"] = packageData.currentVersion.id;
-        }
-        try {
-            const modelConfig = await api.getModelInfo(model);
-            const modelData = await api.getModelDataList(model, searchFilters);
-            setModelConfig({
-                modelInfo: modelConfig,
-                modelData: modelData,
-            });
-        } catch (ex) {
-            errorHandler(ex);
-        }
-    };
+    // const search = async (filters) => {
+    //     let searchFilters = { ...filters };
+    //     if (packageData) {
+    //         searchFilters["package_version_id__in"] = packageData.currentVersion.id;
+    //     }
+    //     try {
+    //         const modelConfig = await api.getModelInfo(model);
+    //         const modelData = await api.getModelDataList(model, searchFilters);
+    //         setModelConfig({
+    //             modelInfo: modelConfig,
+    //             modelData: modelData,
+    //         });
+    //     } catch (ex) {
+    //         errorHandler(ex);
+    //     }
+    // };
 
     const handleOnDelete = async (data) => {
         await api.deleteModelData(model, data.id);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Row, Select, Space, Spin, Table, Layout, Button, message, notification, Input, Popconfirm } from "antd";
+import { Col, Row, Spin, Table, Layout, Button, message, notification, Input, Popconfirm } from "antd";
 import T from "i18n-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -42,6 +42,7 @@ export default function Packages() {
     const classes = useStyles();
     const [packages, setPackages] = useState();
     const [dialogActive, setDialogActive] = useState();
+    const [searchTerm, setSearchTerm] = useState("");
     const loadPackages = () => {
         axios.get("/configuration/packages").then((response) => {
             setPackages(response.data.results.map((item) => ({ ...item, key: item.id })));
@@ -51,9 +52,9 @@ export default function Packages() {
         loadPackages();
     }, []);
 
-    const handleOnPublish = (code, version) => () => {
+    const handleOnPublish = (packageId, versionId) => () => {
         axios
-            .get("/packages/" + code + "/versions/" + version + "/publish")
+            .post(`/configuration/packages/${packageId}/versions/${versionId}/publish/`)
             .then((response) => {
                 message.info(T.translate("packages.publish_successful"));
                 loadPackages();
@@ -67,9 +68,9 @@ export default function Packages() {
         setDialogActive({ code: "copyVersion", payload: packageVersion });
     };
 
-    const handleOnImport = (code, version) => () => {
+    const handleOnImport = (packageId, versionId) => () => {
         axios
-            .get("/packages/" + code + "/versions/" + version + "/import")
+            .get(`/configuration/packages/${packageId}/versions/${versionId}/import_remote`)
             .then((response) => {
                 message.info(T.translate("packages.import_successful"));
                 loadPackages();
@@ -78,9 +79,9 @@ export default function Packages() {
                 notification.error({ message: T.translate("packages.import_error") });
             });
     };
-    const handleOnRefreshStatus = (code) => () => {
+    const handleOnRefreshStatus = (packageId) => () => {
         axios
-            .get("/packages/" + code + "/check_remote_status")
+            .get(`/configuration/packages/${packageId}/update_remote_status`)
             .then((response) => {
                 message.info(T.translate("packages.remote_status_updated"));
                 loadPackages();
@@ -121,15 +122,25 @@ export default function Packages() {
     const renderExpandable = (packageData) => {
         let extendedColumns = [
             { title: T.translate("packages.version"), key: "version", dataIndex: "version" },
-            { title: T.translate("packages.local_commit"), key: "local_commit", dataIndex: "local_commit" },
-            { title: T.translate("packages.remote_commit"), key: "remote_commit", dataIndex: "remote_commit" },
+            {
+                title: T.translate("packages.local_commit"),
+                key: "localCommit",
+                dataIndex: "localCommit",
+                render: (value) => value && value.substring(0, 7),
+            },
+            {
+                title: T.translate("packages.remote_commit"),
+                key: "remoteCommit",
+                dataIndex: "remoteCommit",
+                render: (value) => value && value.substring(0, 7),
+            },
             {
                 title: "Acciones",
                 key: "actions",
                 render: (text, record) => {
                     return (
                         <>
-                            {!packageData.remote || record.local_commit ? (
+                            {!packageData.remote || record.localCommit ? (
                                 <Button
                                     type="text"
                                     onClick={() => navigate(packageData.id.toString() + "/versions/" + record.id)}
@@ -141,12 +152,10 @@ export default function Packages() {
                                         />
                                     }></Button>
                             ) : null}
-                            {packageData.remote &&
-                            record.remote_commit &&
-                            record.remote_commit !== record.local_commit ? (
+                            {packageData.remote && record.remoteCommit && record.remoteCommit !== record.localCommit ? (
                                 <Button
                                     type="text"
-                                    onClick={handleOnImport(record.code, record.version)}
+                                    onClick={handleOnImport(packageData.id, record.id)}
                                     icon={
                                         <Icon
                                             path={mdiCloudDownload}
@@ -155,12 +164,10 @@ export default function Packages() {
                                         />
                                     }></Button>
                             ) : null}
-                            {packageData.remote &&
-                            record.local_commit &&
-                            record.remote_commit === record.local_commit ? (
+                            {packageData.remote && record.localCommit && record.remoteCommit === record.localCommit ? (
                                 <Button
                                     type="text"
-                                    onClick={handleOnPublish(record.code, record.version)}
+                                    onClick={handleOnPublish(packageData.id, record.id)}
                                     icon={
                                         <Icon
                                             path={mdiCloudUpload}
@@ -169,7 +176,7 @@ export default function Packages() {
                                         />
                                     }></Button>
                             ) : null}
-                            {!packageData.remote || (record.remote_commit && record.remote_commit !== "initial") ? (
+                            {!packageData.remote || (record.remoteCommit && record.remoteCommit !== "initial") ? (
                                 <Button
                                     type="text"
                                     onClick={handleOnCopy(record)}
@@ -272,7 +279,7 @@ export default function Packages() {
                         {record.remote ? (
                             <Button
                                 type="text"
-                                onClick={handleOnRefreshStatus(record.code)}
+                                onClick={handleOnRefreshStatus(record.id)}
                                 icon={
                                     <Icon
                                         path={mdiRefresh}
@@ -309,7 +316,12 @@ export default function Packages() {
             <Content>
                 <Row className={classes.card}>
                     <Col flex={4}>
-                        <Search className={classes.search} enterButton />
+                        <Search
+                            className={classes.search}
+                            enterButton
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </Col>
                     <Col flex={2}>
                         <Row justify="end">

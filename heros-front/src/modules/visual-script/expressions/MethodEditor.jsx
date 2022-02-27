@@ -16,6 +16,157 @@ const useStyles = createUseStyles({
         marginTop: "20px",
     },
 });
+const getDefaultByType = (type) => {
+    switch (type.type) {
+        case "string":
+        case "date":
+            return "";
+        case "integer":
+        case "number":
+            return 0;
+        case "boolean":
+            return false;
+        case "array":
+            return [];
+        case "object":
+            return {};
+        case "$any":
+        case "$anyPrimitive":
+            return "";
+        case "$anyObject":
+            return {};
+
+        default:
+            throw Error("Type member not supported: ", type.type);
+    }
+};
+
+const memberToUiSchema = (member) => {
+    let uiSchema = {};
+    if (member.type.selectOptions) {
+        if (member.type.type === "array") {
+            uiSchema.items = {
+                "ui:widget": "SelectRemoteWidget",
+                "ui:selectOptions": member.type.selectOptions,
+            };
+        } else {
+            uiSchema = {
+                "ui:widget": "SelectRemoteWidget",
+                "ui:selectOptions": member.type.selectOptions,
+            };
+        }
+    }
+    if (member.type.type === "integer" || member.type.type === "number") {
+        uiSchema["ui:emptyValue"] = 0;
+    }
+    if (member.type.widget) {
+        uiSchema["ui:widget"] = member.type.widget;
+    }
+    if (member.options) {
+        member.options.forEach((option) => {
+            if (!uiSchema["ui:options"]) {
+                uiSchema["ui:options"] = {};
+            }
+            uiSchema["ui:options"][option.code] = option.value;
+        });
+    }
+    return uiSchema;
+};
+
+const memberToSchema = async (member, childrenObjects, language, dependencies) => {
+    let objectProperties = [];
+    switch (member.type.type) {
+        case "string":
+            return {
+                type: "string",
+                title: member.name,
+            };
+        case "date":
+            return {
+                type: "string",
+                format: "date",
+                title: member.name,
+                default: "",
+            };
+        case "integer":
+            return {
+                type: "integer",
+                title: member.name,
+                default: 0,
+            };
+
+        case "number":
+            return {
+                type: "number",
+                title: member.name,
+                default: 0,
+            };
+        case "boolean":
+            return {
+                type: "boolean",
+                title: member.name,
+                default: true,
+            };
+        case "array":
+            return {
+                type: "array",
+                title: member.name,
+                default: [],
+                items: await memberToSchema({ type: member.type.items }, childrenObjects),
+            };
+        case "object":
+            if (member.type.objectCode in childrenObjects) {
+                objectProperties = childrenObjects[member.type.objectCode];
+            } else {
+                let members = await getMembers(language, member.type, {
+                    excludeMethods: true,
+                    recursive: true,
+                    packages: dependencies,
+                });
+                objectProperties = members.properties;
+                childrenObjects = { ...childrenObjects, ...members.childrenObjects };
+            }
+
+            let returnObject = {
+                type: "object",
+                title: member.name,
+                properties: {},
+            };
+            objectProperties.forEach(async (childMember) => {
+                returnObject.properties[childMember.code] = await memberToSchema(
+                    childMember,
+                    childrenObjects,
+                    language,
+                    dependencies
+                );
+            });
+
+            return returnObject;
+        case "$any":
+        case "$anyPrimitive":
+            return {
+                type: "string",
+                title: member.name,
+            };
+        case "$anyObject":
+            return {
+                type: "object",
+                title: member.name,
+                properties: {},
+            };
+
+        default:
+            throw Error("Type member not supported: ", member.type.type);
+    }
+};
+
+const memberToFormSchemas = async (member, parentMember, language, dependencies) => {
+    return {
+        member,
+        schema: await memberToSchema(member, {}, language, dependencies),
+        uiSchema: memberToUiSchema(member),
+    };
+};
 
 export default function MethodEditor({ member, variables, onParametersEntered, onCancel }) {
     const [formOptions, setFormOptions] = useState(null);
@@ -41,7 +192,7 @@ export default function MethodEditor({ member, variables, onParametersEntered, o
                 if (!(paramMember.code in member.params)) {
                     member.params[paramMember.code] = getDefaultByType(paramMember.type);
                 }
-                return memberToFormSchemas(paramMember, member);
+                return memberToFormSchemas(paramMember, member, manager.getLanguage(), packageData.dependencies);
             });
             Promise.all(paramConfigPromises).then((paramConfigs) => {
                 paramConfigs.forEach((paramConfig) => {
@@ -53,7 +204,7 @@ export default function MethodEditor({ member, variables, onParametersEntered, o
         } else {
             onParametersEntered(member);
         }
-    }, [member]);
+    }, [member, onParametersEntered, manager, packageData.dependencies]);
 
     const handleOnSubmit = (f) => {
         onParametersEntered({ ...member, params: f.formData });
@@ -61,153 +212,6 @@ export default function MethodEditor({ member, variables, onParametersEntered, o
 
     const handleCancel = () => {
         onCancel();
-    };
-
-    const memberToFormSchemas = async (member, parentMember) => {
-        return {
-            member,
-            schema: await memberToSchema(member, {}),
-            uiSchema: memberToUiSchema(member),
-        };
-    };
-
-    const memberToUiSchema = (member) => {
-        let uiSchema = {};
-        if (member.type.selectOptions) {
-            if (member.type.type === "array") {
-                uiSchema.items = {
-                    "ui:widget": "SelectRemoteWidget",
-                    "ui:selectOptions": member.type.selectOptions,
-                };
-            } else {
-                uiSchema = {
-                    "ui:widget": "SelectRemoteWidget",
-                    "ui:selectOptions": member.type.selectOptions,
-                };
-            }
-        }
-        if (member.type.type === "integer" || member.type.type === "number") {
-            uiSchema["ui:emptyValue"] = 0;
-        }
-        if (member.type.widget) {
-            uiSchema["ui:widget"] = member.type.widget;
-        }
-        if (member.options) {
-            member.options.forEach((option) => {
-                if (!uiSchema["ui:options"]) {
-                    uiSchema["ui:options"] = {};
-                }
-                uiSchema["ui:options"][option.code] = option.value;
-            });
-        }
-        return uiSchema;
-    };
-
-    const memberToSchema = async (member, childrenObjects) => {
-        let objectProperties = [];
-        switch (member.type.type) {
-            case "string":
-                return {
-                    type: "string",
-                    title: member.name,
-                };
-            case "date":
-                return {
-                    type: "string",
-                    format: "date",
-                    title: member.name,
-                    default: "",
-                };
-            case "integer":
-                return {
-                    type: "integer",
-                    title: member.name,
-                    default: 0,
-                };
-
-            case "number":
-                return {
-                    type: "number",
-                    title: member.name,
-                    default: 0,
-                };
-            case "boolean":
-                return {
-                    type: "boolean",
-                    title: member.name,
-                    default: true,
-                };
-            case "array":
-                return {
-                    type: "array",
-                    title: member.name,
-                    default: [],
-                    items: await memberToSchema({ type: member.type.items }, childrenObjects),
-                };
-            case "object":
-                if (member.type.objectCode in childrenObjects) {
-                    objectProperties = childrenObjects[member.type.objectCode];
-                } else {
-                    let members = await getMembers(manager.getLanguage(), member.type, {
-                        excludeMethods: true,
-                        recursive: true,
-                        packages: packageData.dependencies,
-                    });
-                    objectProperties = members.properties;
-                    childrenObjects = { ...childrenObjects, ...members.childrenObjects };
-                }
-
-                let returnObject = {
-                    type: "object",
-                    title: member.name,
-                    properties: {},
-                };
-                objectProperties.forEach(async (childMember) => {
-                    returnObject.properties[childMember.code] = await memberToSchema(childMember, childrenObjects);
-                });
-
-                return returnObject;
-            case "$any":
-            case "$anyPrimitive":
-                return {
-                    type: "string",
-                    title: member.name,
-                };
-            case "$anyObject":
-                return {
-                    type: "object",
-                    title: member.name,
-                    properties: {},
-                };
-
-            default:
-                throw Error("Type member not supported: ", member.type.type);
-        }
-    };
-
-    const getDefaultByType = (type) => {
-        switch (type.type) {
-            case "string":
-            case "date":
-                return "";
-            case "integer":
-            case "number":
-                return 0;
-            case "boolean":
-                return false;
-            case "array":
-                return [];
-            case "object":
-                return {};
-            case "$any":
-            case "$anyPrimitive":
-                return "";
-            case "$anyObject":
-                return {};
-
-            default:
-                throw Error("Type member not supported: ", member.type.type);
-        }
     };
 
     if (!formOptions) {

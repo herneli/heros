@@ -1,17 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import * as types from "@rjsf/core/lib/types";
-import {
-    getUiOptions,
-    getWidget,
-    guessType,
-    retrieveSchema,
-    getDefaultFormState,
-    getMatchingOption,
-    deepEquals,
-} from "@rjsf/core/lib/utils";
+import { guessType, retrieveSchema, getDefaultFormState, getMatchingOption, deepEquals } from "@rjsf/core/lib/utils";
 import withStyles from "react-jss";
-import { mdiFunction } from "@mdi/js";
 import { Select } from "antd";
 import Icon from "@mdi/react";
 import getTypeIcon from "../getTypeIcon";
@@ -75,7 +66,7 @@ class OneOfExpressionField extends Component {
 
     onOptionChange = (option) => {
         const selectedOption = parseInt(option, 10);
-        const { formData, onChange, options, registry } = this.props;
+        const { formData, options, registry } = this.props;
         const { rootSchema } = registry;
         const newOption = retrieveSchema(options[selectedOption], rootSchema, formData);
 
@@ -120,21 +111,15 @@ class OneOfExpressionField extends Component {
             idPrefix,
             idSchema,
             onBlur,
-            onChange,
             onFocus,
             options,
             registry,
             uiSchema,
-            schema,
             classes,
         } = this.props;
 
-        const _SchemaField = registry.fields.SchemaField;
-        const { widgets } = registry;
+        const SchemaField = registry.fields.SchemaField;
         const { selectedOption } = this.state;
-        const { widget = "select", ...uiOptions } = getUiOptions(uiSchema);
-        const Widget = getWidget({ type: "number" }, widget, widgets);
-
         const option = options[selectedOption] || null;
 
         let optionSchema;
@@ -181,7 +166,7 @@ class OneOfExpressionField extends Component {
             <div className={classes.widgetContainer}>
                 <div className={classes.widget}>
                     {option !== null && (
-                        <_SchemaField
+                        <SchemaField
                             schema={optionSchema}
                             uiSchema={optionsUiSchema}
                             errorSchema={errorSchema}

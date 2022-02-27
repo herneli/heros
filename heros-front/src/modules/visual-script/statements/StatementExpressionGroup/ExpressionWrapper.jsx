@@ -1,6 +1,6 @@
 import React from "react";
 import Expression from "../../expressions/Expression";
-import { mdiContentCopy, mdiDelete, mdiDrag, mdiDragVertical } from "@mdi/js";
+import { mdiContentCopy, mdiDelete, mdiDragVertical } from "@mdi/js";
 import StatementIcon from "../StatementIcon";
 import { Button, Popconfirm } from "antd";
 import { createUseStyles } from "react-jss";

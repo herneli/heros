@@ -101,7 +101,7 @@ export default class SelectRemoteWidget extends Component {
     };
 
     render() {
-        let { schema, id, label, required, disabled, readonly, value = "", options, autofocus } = this.props;
+        let { required, disabled, readonly, value = "", options, autofocus } = this.props;
 
         const emptyValue = options.mode === "multiple" ? [] : "";
         return (

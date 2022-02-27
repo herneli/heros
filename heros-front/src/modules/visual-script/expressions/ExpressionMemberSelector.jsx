@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { mdiChevronDown, mdiBackspaceOutline } from "@mdi/js";
 import Icon from "@mdi/react";
 import { List, Button, Popover, Input } from "antd";
@@ -9,6 +9,10 @@ import T from "i18n-react";
 import areSameTypes from "../utils/areSameTypes";
 import getMembers from "../getMembers";
 import { usePackage } from "../../packages/PackageContext";
+
+const getLastExpressionMember = (expression) => {
+    return expression[expression.length - 1];
+};
 
 export default function ExpressionMemberSelector({
     expression,
@@ -24,34 +28,8 @@ export default function ExpressionMemberSelector({
     const [filter, setFilter] = useState();
     const { manager } = useScriptContext();
     const packageData = usePackage();
-
-    useEffect(() => {
-        if (open && (!membersForType || !areSameTypes(membersForType.type, getLastExpressionMember().type))) {
-            calculateMembers();
-        }
-    }, [expression, open]);
-
-    const itemStyle = { padding: "2px 4px" };
-
-    const getLastExpressionMember = () => {
-        return expression[expression.length - 1];
-    };
-
-    const memberSorter = (a, b) => {
-        const comparerA = a.name.toLowerCase();
-        const comparerB = b.name.toLowerCase();
-
-        if (comparerA < comparerB) {
-            return -1;
-        } else if (comparerA > comparerB) {
-            return 1;
-        } else {
-            return 0;
-        }
-    };
-
-    const calculateMembers = () => {
-        let lastExpressionMember = getLastExpressionMember();
+    const calculateMembers = useCallback(() => {
+        let lastExpressionMember = getLastExpressionMember(expression);
         getMembers(manager.getLanguage(), lastExpressionMember.type, { packages: packageData.dependencies }).then(
             (m) => {
                 let membersLocal = [];
@@ -63,7 +41,7 @@ export default function ExpressionMemberSelector({
                         });
                     });
                 }
-                if (getLastExpressionMember().memberType === "variableContainer") {
+                if (lastExpressionMember.memberType === "variableContainer") {
                     Object.keys(variables).forEach((variableKey) => {
                         membersLocal.push(variables[variableKey]);
                     });
@@ -99,7 +77,29 @@ export default function ExpressionMemberSelector({
                 });
             }
         );
+    }, [expression, manager, packageData.dependencies, variables]);
+
+    useEffect(() => {
+        if (open && (!membersForType || !areSameTypes(membersForType.type, getLastExpressionMember(expression).type))) {
+            calculateMembers();
+        }
+    }, [expression, open, calculateMembers, membersForType]);
+
+    const itemStyle = { padding: "2px 4px" };
+
+    const memberSorter = (a, b) => {
+        const comparerA = a.name.toLowerCase();
+        const comparerB = b.name.toLowerCase();
+
+        if (comparerA < comparerB) {
+            return -1;
+        } else if (comparerA > comparerB) {
+            return 1;
+        } else {
+            return 0;
+        }
     };
+
     const handleOnChangeFilter = (e) => {
         setFilter(e.target.value);
     };

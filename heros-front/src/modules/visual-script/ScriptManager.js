@@ -3,7 +3,6 @@ import { FlowchartConnector } from "@jsplumb/connector-flowchart";
 import { v4 as uuidv4 } from "uuid";
 
 import statementRegistry from "./statements/statementRegistry";
-import getMembers from "./getMembers";
 const arrowOverlay = {
     width: 6,
     length: 6,

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router";
 
 import * as api from "./api";
 import errorHandler from "./errorHandler";
@@ -8,36 +8,22 @@ import { usePackage } from "../packages/PackageContext";
 import ModelEditor from "./components/ModelEditor";
 
 const ModelEdit = ({ model, onElementLoad }) => {
+    let navigate = useNavigate();
+    const { id } = useParams();
     const [modelConfig, setModelConfig] = useState({
         modelInfo: null,
     });
     const [edit, setEdit] = useState(null);
+    const setEditData = useCallback(
+        async (id) => {
+            const editModel = await api.getModelData(model, id);
 
-    const packageData = usePackage();
-
-    let navigate = useNavigate();
-    const { state } = useLocation();
-    const { id } = useParams();
-
-    useEffect(() => {
-        loadModelConfig();
-    }, [model]);
-
-    useEffect(() => {
-        loadElement();
-    }, [state]);
-
-    const loadElement = async () => {
-        setEdit(null);
-
-        if (id === "new") {
-            setEdit({});
-        } else {
-            await setEditData(id);
-        }
-    };
-
-    const loadModelConfig = async () => {
+            setEdit(editModel);
+            if (onElementLoad) onElementLoad(editModel);
+        },
+        [onElementLoad, model]
+    );
+    const loadModelConfig = useCallback(async () => {
         try {
             const modelConfig = await api.getModelInfo(model);
             setModelConfig({
@@ -46,14 +32,26 @@ const ModelEdit = ({ model, onElementLoad }) => {
         } catch (ex) {
             errorHandler(ex);
         }
-    };
+    }, [model]);
+    const loadElement = useCallback(async () => {
+        setEdit(null);
 
-    const setEditData = async (id) => {
-        const editModel = await api.getModelData(model, id);
+        if (id === "new") {
+            setEdit({});
+        } else {
+            await setEditData(id);
+        }
+    }, [id, setEditData]);
 
-        setEdit(editModel);
-        if (onElementLoad) onElementLoad(editModel);
-    };
+    const packageData = usePackage();
+
+    useEffect(() => {
+        loadModelConfig();
+    }, [loadModelConfig, model]);
+
+    useEffect(() => {
+        loadElement();
+    }, [loadElement]);
 
     const handleOnSave = async (formData, overwrite = false) => {
         try {

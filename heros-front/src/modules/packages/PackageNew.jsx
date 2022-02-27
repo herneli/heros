@@ -36,7 +36,7 @@ export default function PackageNew({ onCancel, onCreate }) {
                 setRemotePackages(options);
             });
         }
-    }, []);
+    }, [remotePackages]);
 
     const handleSavePackage = () => {
         if (packageData.placement === "remote") {

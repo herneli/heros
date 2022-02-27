@@ -5,7 +5,6 @@ import T from "i18n-react";
 // import ModelOverwriteDialog from "./ModelOverwriteDialog";
 import { mdiUpload, mdiPlus, mdiDelete, mdiContentCopy, mdiDownload, mdiPencil } from "@mdi/js";
 import Icon from "@mdi/react";
-import getFiltersByPairs from "../getFiltersByPairs";
 const { Search } = Input;
 
 const useStyles = createUseStyles({
@@ -37,6 +36,20 @@ export default function ModelTable({
     onSaveDataBatch,
     buttonsConfig,
 }) {
+    const [importItems] = useState();
+    const [searchString] = useState();
+    const [pagination, setPagination] = useState({});
+    const classes = useStyles();
+
+    //ComponentDidMount
+    useEffect(() => {
+        onSearchData();
+    }, [onSearchData]);
+
+    useEffect(() => {
+        setPagination({ total: total, showSizeChanger: true, pageSize: 100 });
+    }, [total]);
+
     const calculateColumns = (info) => {
         if (info) {
             let columns = info.listFields.map((field) => ({
@@ -100,11 +113,6 @@ export default function ModelTable({
             return null;
         }
     };
-    const [importItems] = useState();
-    const [searchString] = useState();
-    const [pagination, setPagination] = useState({});
-
-    const classes = useStyles();
 
     const columns = calculateColumns(modelInfo);
 
@@ -163,8 +171,6 @@ export default function ModelTable({
     };
 
     const handleOnDownloadModel = (e, row) => {
-        // e.stopPropagation();
-
         const data = [row];
         const code = row.code || row.name;
 
@@ -183,7 +189,7 @@ export default function ModelTable({
                 );
                 Promise.all(promises).then((values) => {
                     message.info(T.translate("configuration.end_of_loading_json_file"));
-                    search();
+                    onSearchData();
                 });
             })
             .catch((error) => message.error(T.translate("configuration.error_loading_json_file")));
@@ -199,46 +205,6 @@ export default function ModelTable({
     //         message.info(T.translate("configuration.end_of_loading_json_file"));
     //     });
     // };
-
-    const search = async (params, searchValue, sorts) => {
-        let filters = {};
-
-        if (searchValue && Object.keys(searchValue).length > 0) {
-            if (searchValue.indexOf(":") !== -1) {
-                filters = getFiltersByPairs((key) => `data->>'${key}'`, searchValue);
-            } else {
-                filters = {
-                    "data::text": {
-                        type: "jsonb",
-                        value: searchValue,
-                    },
-                };
-            }
-        }
-
-        if (params?.pageSize && params?.current) {
-            filters.limit = params.pageSize ? params.pageSize : 10;
-            filters.start = (params.current ? params.current - 1 : 0) * (params.pageSize ? params.pageSize : 10);
-        }
-
-        if (sorts) {
-            filters.sort = Object.keys(sorts).length !== 0 && {
-                field: sorts.columnKey || sorts.field,
-                direction: sorts.order,
-            };
-        }
-
-        await onSearchData(filters);
-    };
-
-    //ComponentDidMount
-    useEffect(() => {
-        search();
-    }, []);
-
-    useEffect(() => {
-        setPagination({ total: total, showSizeChanger: true, pageSize: 100 });
-    }, [total]);
 
     let filteredData = !searchString ? modelData : "";
 
@@ -259,7 +225,7 @@ export default function ModelTable({
 
             <Row>
                 <Col flex={1}>
-                    <Search className={classes.search} onSearch={(element) => search(null, element)} enterButton />
+                    <Search className={classes.search} onSearch={(element) => onSearchData()} enterButton />
                 </Col>
                 <Col flex={2}>
                     <Row justify="end" gutter={10}>
@@ -299,7 +265,7 @@ export default function ModelTable({
                 pagination={pagination}
                 rowKey={"id"}
                 sort
-                onChange={search}
+                onChange={onSearchData}
                 bordered
                 size="small"
             />

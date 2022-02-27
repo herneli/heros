@@ -1,18 +1,21 @@
+from datetime import date
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from heros.configuration.models import Package, PackageVersion, ConfigDocument, ConfigInfo
-from heros.configuration.serializers import PacakgeSerializer, PackageVersionSerializer,  ConfigDocumentSerializer, ConfigInfoSerializer
 from django.forms.models import model_to_dict
 from collections import OrderedDict
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from heros.configuration.models import Package, PackageVersion, ConfigDocument, ConfigInfo
+from heros.configuration.serializers import PacakgeSerializer, PackageVersionSerializer,  ConfigDocumentSerializer, ConfigInfoSerializer
 from heros.configuration import helpers
+from heros.configuration.git import PackageRepository
+from datetime import datetime
 import json
 
 # Create your views here.
@@ -23,14 +26,30 @@ class PackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.filter()
     serializer_class = PacakgeSerializer
     filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
-
+    filterset_fields = {
+        'code': ['exact'],
+    }
     @action(methods=['get'], detail=False)
     def remote_list(self, request, pk=None ):
         return Response([])
 
-    filterset_fields = {
-        'code': ['exact'],
-    }
+
+    @action(methods=['get'], detail=True)
+    def update_remote_status(self, request, pk=None):
+        package = Package.objects.get(pk=pk)
+        repo = PackageRepository(package)
+        repo.update_remote_status()
+        return Response("Done")
+
+    @action(methods=['get'], detail=True)
+    def available_branches(self, request, pk=None):
+        package = Package.objects.get(pk=pk)
+        repo = PackageRepository(package)
+        branches = repo.get_available_branches()
+        return Response(branches)        
+
+
+
 
 class PackageVersionViewSet(viewsets.ModelViewSet):
     """
@@ -41,21 +60,49 @@ class PackageVersionViewSet(viewsets.ModelViewSet):
 
     serializer_class = PackageVersionSerializer
     filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    filterset_fields = {
+        'version': ['exact'],
+    }
 
     @action(methods=['post'], detail=True)
     def copy(self, request, pk=None, package_pk=None ):
         version = PackageVersion.objects.get(pk=pk)
-
-        new_version = PackageVersion.objects.create(package=version.package, version=request.data.get("version"))
+        new_version = PackageVersion.objects.create(
+            package=version.package, 
+            version=request.data.get("version"),
+            remote_commit=version.remote_commit,
+            local_commit=version.local_commit
+            )
         for config_document in version.config_documents.all():
             config_document.id = None
             config_document.package_version = new_version
             config_document.save()
-        return Response([])
+        if new_version.package.remote:
+            new_version.refresh_from_db()
+            repo = PackageRepository(new_version.package, new_version)
+            repo.create_version_branch(from_version=version.version)
+            repo.checkout_version()
+            repo.write_documents_to_repo()
+            repo.commit_and_push("Copy version "+ str(datetime.now()))            
+        return Response("Done")
 
-    filterset_fields = {
-        'version': ['exact'],
-    }
+    @action(methods=['post'], detail=True)
+    def publish(self, request, pk=None, package_pk=None ):
+        version = PackageVersion.objects.get(pk=pk)
+        repo = PackageRepository(version.package, version)
+        repo.checkout_version()
+        repo.write_documents_to_repo()
+        repo.commit_and_push("Publish "+ str(datetime.now()))
+        return Response("Done")
+
+    @action(methods=['get'], detail=True)
+    def import_remote(self, request, pk=None, package_pk=None ):
+        version = PackageVersion.objects.get(pk=pk)
+        repo = PackageRepository(version.package, version)
+        repo.import_remote_package()
+        return Response("Done")        
+
+
 
 def string_to_json(json_string):
     return json.loads(json_string, object_pairs_hook=OrderedDict)
@@ -91,58 +138,3 @@ class ConfigDocumentViewSet(viewsets.ModelViewSet):
 
 
 
-
-
-# @api_view(["GET"])
-# @permission_classes([permissions.AllowAny])
-# def test(request):
-#     """
-#     Test
-#     """
-#     return Response({"message": "Hello world"})
-
-
-# @api_view(["GET", "POST"])
-# def config_data_set(request, model):
-#     """
-#     Pending documentation
-#     """
-#     # GET
-#     if request.method == 'GET':
-#         documents = ConfigDocument.objects.filter(
-#             document_type=model).order_by('code')
-#         return Response(documents.values())
-#     # POST
-#     elif request.method == 'POST':
-#         return Response(helpers.create_config_document(model, request.data))
-
-
-# @api_view(["GET", "PUT", "DELETE"])
-# def config_data_single(request, model, id):
-#     """
-#     Pending documentation
-#     """
-#     # GET
-#     if request.method == 'GET':
-#         return Response(model_to_dict(ConfigDocument.objects.get(id=id)))
-#     # PUT
-#     elif request.method == 'PUT':
-#         return Response(helpers.update_config_document(model, request.data, id))
-#     # DELETE
-#     elif request.method == 'DELETE':
-#         return Response(helpers.delete_config_document(id))
-
-
-
-
-
-# @api_view(["POST"])
-# def get_object_members(request):
-#     members = helpers.get_object_members(
-#         request.data.get("type"), request.data.get("language"))
-#     return Response(members)
-
-
-# @api_view(["GET"])
-# def script_new(request):
-#     return helpers.script_new()

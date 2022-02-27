@@ -4,11 +4,13 @@
     "listFields": [
         {
             "title": "Código",
-            "field": "code"
+            "field": "code",
+            "search": true
         },
         {
             "title": "Nombre",
-            "field": ["data", "name"]
+            "field": ["data", "name"],
+            "search": true
         },
         {
             "title": "Tipo padre",

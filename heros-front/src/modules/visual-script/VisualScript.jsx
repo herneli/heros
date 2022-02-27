@@ -3,9 +3,8 @@ import ScriptManager from "./ScriptManager";
 import withStyles from "react-jss";
 import ScriptContextProvider from "./ScriptContext";
 import Statement from "./statements/Statement";
-import { Button, Modal, Space } from "antd";
+import { Modal } from "antd";
 import ModelAdmin from "../configuration/ModelAdmin";
-import T from "i18n-react";
 const styles = {
     dialogContent: {
         marginRight: "10px",
