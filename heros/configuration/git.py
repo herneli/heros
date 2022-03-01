@@ -109,6 +109,9 @@ class GitPackage:
                 document.code + ".json")
 
             data = ConfigDocumentSerializer(document).data
+            data.pop("id",None)
+            data.pop("full_code",None)
+            data.pop("package_version",None)
             os.makedirs(os.path.dirname(document_path), exist_ok=True)
             with open(document_path, "w") as outfile:
                 json.dump(data, outfile,indent=4)
@@ -136,7 +139,6 @@ class GitPackage:
                             file_path = os.path.join(directory,file)
                             with open(file_path, "r") as read_file:
                                 document_data = json.load(read_file)
-                            document_data.pop("id")
                             document_data.pop("id",None)
                             document_data.pop("full_code",None)
                             document_data.pop("created_at",None)

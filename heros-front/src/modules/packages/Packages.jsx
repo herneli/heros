@@ -396,6 +396,7 @@ export default function Packages() {
                     size="small"
                     bordered
                     expandable={{
+                        defaultExpandAllRows: true,
                         expandedRowRender: renderExpandable,
                         rowExpandable: (record) => true,
                     }}></Table>

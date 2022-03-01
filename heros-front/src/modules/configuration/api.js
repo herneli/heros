@@ -32,11 +32,12 @@ export function deleteModelData(model, id) {
 }
 
 export function saveModelData(model, formData, packageData, overwrite = false) {
+    let { id, ...data } = formData;
     formData = {
         id: formData.id,
         documentType: model,
         code: formData.code,
-        data: formData,
+        data: data,
         packageVersion: packageData.currentVersion.id,
     };
     if (formData.id) {

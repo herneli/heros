@@ -102,6 +102,8 @@ class PackageVersionViewSet(viewsets.ModelViewSet):
                 remote_commit=version.remote_commit,
                 local_commit=version.local_commit
                 )
+            new_version.dependencies.set(version.dependencies.all())
+            new_version.save()
             for config_document in version.config_documents.all():
                 config_document.id = None
                 config_document.package_version = new_version
