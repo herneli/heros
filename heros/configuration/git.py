@@ -1,6 +1,7 @@
 from heros.configuration.models import ConfigDocument, Package, PackageVersion
 from heros.configuration.serializers import ConfigDocumentSerializer
 from django.db import transaction
+from django.conf import settings
 from git import Repo
 from os import path
 import os
@@ -11,8 +12,21 @@ from heros.configuration.utils import get_directories
 
 document_types = ['context','object','method']
 repo_base_path = path.join(".","repos")
-
 class PackageRepository:
+    def __init__(self):
+        self.repo_path = path.join(repo_base_path, "package-repository")
+        self.packages_file = "darvel_packages.json"
+        self.packages_path = path.join(self.repo_path,self.packages_file)
+        if os.path.isdir(self.repo_path):
+            shutil.rmtree(self.repo_path)
+        self.repo = Repo.clone_from(settings.GIT_REPOSITORY,self.repo_path)
+    def get_packages(self):
+        with open(self.packages_path, "r") as read_file :
+            packages = json.load(read_file)
+        return packages
+        
+        
+class GitPackage:
     def __init__(self, package, version=None):
         if not package.remote:
             raise Exception("Remote repository not updated in package")
@@ -26,6 +40,8 @@ class PackageRepository:
             shutil.rmtree(self.repo_path)
         self.repo = Repo.clone_from(package.remote,self.repo_path)
         self.version = version
+    def set_version(self, version):
+        self.version = version
 
     def ensure_version(self):
         if not self.version:
@@ -34,22 +50,31 @@ class PackageRepository:
     def update_remote_status(self):
         for remote in self.repo.remote().refs:
             if remote.remote_head != 'HEAD':
-                version = self.package.versions.filter(version=remote.remote_head).first()
-                if version:
-                    version.remote_commit = remote.commit.hexsha
-                    version.save()
+                existing_version = self.package.versions.filter(version=remote.remote_head).first()
+                if existing_version:
+                    existing_version.remote_commit = remote.commit.hexsha
+                    existing_version.save()
 
-    def get_available_branches(self):
-        current_branches = list(map(lambda version: version.version, self.package.versions))
-        available_branches = []
+
+    def get_branches(self):
+        branches = []
         for remote in self.repo.remote().refs:
             if remote.remote_head != 'HEAD':
-                if not remote.remote_head in current_branches:
-                    available_branches.append(remote.remote_head)
+                branches.append(remote.remote_head)
+        return branches
+
+    def get_available_branches(self):
+        current_branches = list(map(lambda version: version.version, self.package.versions.all()))
+        available_branches = []
+        remote_branches = self.get_branches()
+        for branch in remote_branches:
+            if not branch in current_branches:
+                available_branches.append(branch)
         return available_branches
 
     def create_version_branch(self,from_version):
         self.ensure_version()
+        self.repo.git.checkout(from_version)
         self.repo.git.branch(self.version.version,c=from_version)
 
     def checkout_version(self,from_version=None):
@@ -92,23 +117,32 @@ class PackageRepository:
     def import_remote_package(self):
         self.ensure_version()
         self.checkout_version()
+        with open(self.dependency_path, "r") as read_file :
+            dependencies = json.load(read_file)
+        self.version.dependencies.all().delete()
+        for package,version in dependencies.items():
+            existing_version = PackageVersion.objects.filter(package__code=package, version=version).first()
+            if not existing_version:
+                raise Exception("Dependency version doesn't exists locally")
+            self.version.dependencies.add(existing_version)
         with transaction.atomic():
             self.version.config_documents.all().delete()
-            directories = get_directories(self.docs_path)
-            for directory in directories:
-                files = os.listdir(directory)
-                for file in files:
-                    if file.endswith('.json'):
-                        file_path = os.path.join(directory,file)
-                        with open(file_path, "r") as read_file:
-                            document_data = json.load(read_file)
-                        document_data.pop("id")
-                        document_data.pop("id",None)
-                        document_data.pop("full_code",None)
-                        document_data.pop("created_at",None)
-                        document_data.pop("modified_at",None)
-                        document_data["package_version"] = self.version
-                        ConfigDocument.objects.create(**document_data)
+            if path.exists(self.docs_path):
+                directories = get_directories(self.docs_path)
+                for directory in directories:
+                    files = os.listdir(directory)
+                    for file in files:
+                        if file.endswith('.json'):
+                            file_path = os.path.join(directory,file)
+                            with open(file_path, "r") as read_file:
+                                document_data = json.load(read_file)
+                            document_data.pop("id")
+                            document_data.pop("id",None)
+                            document_data.pop("full_code",None)
+                            document_data.pop("created_at",None)
+                            document_data.pop("modified_at",None)
+                            document_data["package_version"] = self.version
+                            ConfigDocument.objects.create(**document_data)
             self.version.remote_commit = self.repo.head.commit.hexsha
             self.version.local_commit = self.repo.head.commit.hexsha
             self.version.save()
@@ -124,3 +158,5 @@ class PackageRepository:
 
     def get_repo(self):
         return self.repo
+
+

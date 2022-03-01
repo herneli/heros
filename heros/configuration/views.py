@@ -1,20 +1,21 @@
 from datetime import date
 from django.shortcuts import render
+from django.forms.models import model_to_dict
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import render
+from django.db import transaction
 from rest_framework import viewsets
 from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.forms.models import model_to_dict
-from collections import OrderedDict
-from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from collections import OrderedDict
 from heros.configuration.models import Package, PackageVersion, ConfigDocument, ConfigInfo
 from heros.configuration.serializers import PacakgeSerializer, PackageVersionSerializer,  ConfigDocumentSerializer, ConfigInfoSerializer
 from heros.configuration import helpers
-from heros.configuration.git import PackageRepository
+from heros.configuration.git import GitPackage, PackageRepository
 from datetime import datetime
 import json
 
@@ -31,20 +32,43 @@ class PackageViewSet(viewsets.ModelViewSet):
     }
     @action(methods=['get'], detail=False)
     def remote_list(self, request, pk=None ):
-        return Response([])
+        repo = PackageRepository()
+        packages = repo.get_packages()
+        return_packages = []
+        for package_code, package_data in packages.items():
+            existing_package = Package.objects.filter(code=package_code).first()
+            existing_package 
+            return_packages.append({
+                "code": package_code,
+                "name": package_data.get("name",package_code),
+                "remote": package_data.get("remote"),
+                "local": bool(existing_package)
 
+            })
+        return Response(return_packages)
+
+    
 
     @action(methods=['get'], detail=True)
     def update_remote_status(self, request, pk=None):
         package = Package.objects.get(pk=pk)
-        repo = PackageRepository(package)
+        repo = GitPackage(package)
         repo.update_remote_status()
         return Response("Done")
 
-    @action(methods=['get'], detail=True)
-    def available_branches(self, request, pk=None):
+    @action(methods=['post'], detail=True, url_path=r'import/(?P<version>[\w\.]+)', url_name="import-version")
+    def import_version(self, request, pk=None, version=None):
         package = Package.objects.get(pk=pk)
-        repo = PackageRepository(package)
+        with transaction.atomic():
+            new_version = PackageVersion.objects.create(package=package, version=version)
+            repo = GitPackage(package, new_version)
+            repo.import_remote_package()
+            return Response("Done")        
+
+    @action(methods=['get'], detail=True)
+    def missing_branches(self, request, pk=None):
+        package = Package.objects.get(pk=pk)
+        repo = GitPackage(package)
         branches = repo.get_available_branches()
         return Response(branches)        
 
@@ -67,29 +91,34 @@ class PackageVersionViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=True)
     def copy(self, request, pk=None, package_pk=None ):
         version = PackageVersion.objects.get(pk=pk)
-        new_version = PackageVersion.objects.create(
-            package=version.package, 
-            version=request.data.get("version"),
-            remote_commit=version.remote_commit,
-            local_commit=version.local_commit
-            )
-        for config_document in version.config_documents.all():
-            config_document.id = None
-            config_document.package_version = new_version
-            config_document.save()
-        if new_version.package.remote:
-            new_version.refresh_from_db()
-            repo = PackageRepository(new_version.package, new_version)
-            repo.create_version_branch(from_version=version.version)
-            repo.checkout_version()
-            repo.write_documents_to_repo()
-            repo.commit_and_push("Copy version "+ str(datetime.now()))            
+        if version.package.remote:
+            repo = GitPackage(version.package)
+            if request.data.get("version") in repo.get_branches():
+                raise Exception("Remote branch already exists")
+        with transaction.atomic():
+            new_version = PackageVersion.objects.create(
+                package=version.package, 
+                version=request.data.get("version"),
+                remote_commit=version.remote_commit,
+                local_commit=version.local_commit
+                )
+            for config_document in version.config_documents.all():
+                config_document.id = None
+                config_document.package_version = new_version
+                config_document.save()
+            if new_version.package.remote:
+                repo.set_version(new_version)
+                new_version.refresh_from_db()
+                repo.create_version_branch(from_version=version.version)
+                repo.checkout_version()
+                repo.write_documents_to_repo()
+                repo.commit_and_push("Copy version "+ str(datetime.now()))            
         return Response("Done")
 
     @action(methods=['post'], detail=True)
     def publish(self, request, pk=None, package_pk=None ):
         version = PackageVersion.objects.get(pk=pk)
-        repo = PackageRepository(version.package, version)
+        repo = GitPackage(version.package, version)
         repo.checkout_version()
         repo.write_documents_to_repo()
         repo.commit_and_push("Publish "+ str(datetime.now()))
@@ -98,7 +127,7 @@ class PackageVersionViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=True)
     def import_remote(self, request, pk=None, package_pk=None ):
         version = PackageVersion.objects.get(pk=pk)
-        repo = PackageRepository(version.package, version)
+        repo = GitPackage(version.package, version)
         repo.import_remote_package()
         return Response("Done")        
 

@@ -155,3 +155,4 @@ CORS_ORIGIN_WHITELIST = [
 
 X_FRAME_OPTIONS = 'ALLOWALL'
 
+GIT_REPOSITORY='https://github.com/hernaj34/darvel-package-repository.git'

@@ -10,13 +10,17 @@ import {
     mdiCloudUpload,
     mdiContentCopy,
     mdiDelete,
+    mdiGraph,
+    mdiImport,
     mdiPlus,
     mdiRefresh,
 } from "@mdi/js";
 import { createUseStyles } from "react-jss";
 
 import PackageNew from "./PackageNew";
-import PackageVersionNew from "./PackageVersionNew";
+import PackageVersionCopy from "./PackageVersionCopy";
+import PackageVersionImport from "./PackageVersionImport";
+import PackageVersionDependencies from "./PackageVersionDependencies";
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -93,6 +97,14 @@ export default function Packages() {
 
     const handleOnAddPackage = () => {
         setDialogActive({ code: "newPackage", payload: null });
+    };
+
+    const handleOnManageDepencencies = (version) => () => {
+        setDialogActive({ code: "manageDependencies", payload: version });
+    };
+
+    const handleOnImportVersion = (packageId) => () => {
+        setDialogActive({ code: "importVersion", payload: packageId });
     };
 
     const handleOnDeletePackage = (id) => () => {
@@ -188,6 +200,17 @@ export default function Packages() {
                                         />
                                     }></Button>
                             ) : null}
+                            <Button
+                                type="text"
+                                onClick={handleOnManageDepencencies(record)}
+                                icon={
+                                    <Icon
+                                        path={mdiGraph}
+                                        title={T.translate("packages.copy_version")}
+                                        className={classes.icon}
+                                    />
+                                }
+                            />
                             <Popconfirm
                                 title={T.translate("packages.delete_package_version_confirmation")}
                                 onConfirm={handleOnDeletePackageVersion(packageData.id, record.id)}>
@@ -235,10 +258,26 @@ export default function Packages() {
         switch (dialog.code) {
             case "newPackage":
                 return <PackageNew onCancel={handleOnDialogCancel} onCreate={handleOnDialogComplete} />;
+            case "importVersion":
+                return (
+                    <PackageVersionImport
+                        packageId={dialog.payload}
+                        onCancel={handleOnDialogCancel}
+                        onOk={handleOnDialogComplete}
+                    />
+                );
             case "copyVersion":
                 return (
-                    <PackageVersionNew
+                    <PackageVersionCopy
                         baseVersion={dialog.payload}
+                        onCancel={handleOnDialogCancel}
+                        onOk={handleOnDialogComplete}
+                    />
+                );
+            case "manageDependencies":
+                return (
+                    <PackageVersionDependencies
+                        version={dialog.payload}
                         onCancel={handleOnDialogCancel}
                         onOk={handleOnDialogComplete}
                     />
@@ -277,16 +316,30 @@ export default function Packages() {
                 return (
                     <>
                         {record.remote ? (
-                            <Button
-                                type="text"
-                                onClick={handleOnRefreshStatus(record.id)}
-                                icon={
-                                    <Icon
-                                        path={mdiRefresh}
-                                        title={T.translate("packages.refresh_status")}
-                                        className={classes.icon}
-                                    />
-                                }></Button>
+                            <>
+                                <Button
+                                    type="text"
+                                    onClick={handleOnRefreshStatus(record.id)}
+                                    icon={
+                                        <Icon
+                                            path={mdiRefresh}
+                                            title={T.translate("packages.refresh_status")}
+                                            className={classes.icon}
+                                        />
+                                    }
+                                />
+                                <Button
+                                    type="text"
+                                    onClick={handleOnImportVersion(record.id)}
+                                    icon={
+                                        <Icon
+                                            path={mdiImport}
+                                            title={T.translate("packages.import_version")}
+                                            className={classes.icon}
+                                        />
+                                    }
+                                />
+                            </>
                         ) : null}
                         <Popconfirm
                             title={T.translate("packages.delete_package_confirmation")}

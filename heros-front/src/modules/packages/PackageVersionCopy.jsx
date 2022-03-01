@@ -9,7 +9,7 @@ const useStyles = createUseStyles({
     root: { padding: "20px" },
 });
 
-export default function PackageVersionNew({ baseVersion, onOk, onCancel }) {
+export default function PackageVersionCopy({ baseVersion, onOk, onCancel }) {
     let [newVersion, setNewVersion] = useState({});
     let classes = useStyles();
 

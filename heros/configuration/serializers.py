@@ -1,6 +1,7 @@
 from venv import create
 from django.contrib.auth.models import User, Group
 from django.db import transaction
+from numpy import require
 from rest_framework import serializers
 from heros.configuration.models import Package, PackageVersion ,ConfigDocument, ConfigInfo
 
@@ -19,11 +20,13 @@ class PackageVersionSerializer(serializers.ModelSerializer):
         
 class PacakgeSerializer(serializers.ModelSerializer):
     versions = PackageVersionSerializer(many=True, read_only=True)
+    initial_version = serializers.CharField(required=False)
     def create(self, validated_data):
         with transaction.atomic():
+            initial_version = validated_data.pop("initial_version",None)
             package = Package.objects.create(**validated_data)
-            if (not package.remote):
-                version = PackageVersion.objects.create(package=package, version="1.0.0",remote_commit="initial", local_commit="initial")
+            if (initial_version):
+                version = PackageVersion.objects.create(package=package, version=initial_version,remote_commit="initial", local_commit="initial")
             return package
             
 

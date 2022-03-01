@@ -26,12 +26,12 @@ export default function PackageNew({ onCancel, onCreate }) {
     useEffect(() => {
         if (!remotePackages) {
             axios.get("/configuration/packages/remote_list").then((response) => {
-                let options = Object.entries(response.data.data)
-                    .filter(([packageCode, packageData]) => !packageData.local)
-                    .map(([packageCode, packageData]) => ({
-                        label: packageData.name + " (" + packageCode + ")",
-                        value: packageCode,
-                        item: { ...packageData, code: packageCode },
+                let options = response.data
+                    .filter((packageData) => !packageData.local)
+                    .map((packageData) => ({
+                        label: packageData.name + " (" + packageData.code + ")",
+                        value: packageData.code,
+                        item: packageData,
                     }));
                 setRemotePackages(options);
             });
@@ -48,7 +48,7 @@ export default function PackageNew({ onCancel, onCreate }) {
             let { local, ...newPackageData } = data.item;
 
             axios
-                .post("/configuration/packages", newPackageData)
+                .post("/configuration/packages/", newPackageData)
                 .then((response) => {
                     message.info(T.translate("packages.package_save_successful"));
                     onCreate && onCreate();
@@ -64,6 +64,7 @@ export default function PackageNew({ onCancel, onCreate }) {
                 code: packageData.code,
                 name: packageData.name,
                 remote: packageData.remote,
+                initialVersion: "1.0.0",
             };
             axios
                 .post("/configuration/packages/", newPackageData)
@@ -84,7 +85,8 @@ export default function PackageNew({ onCancel, onCreate }) {
                     <Select
                         value={packageData.placement}
                         options={placementOptions}
-                        onChange={handleOnChange("placement")}></Select>
+                        onChange={handleOnChange("placement")}
+                    />
                 </Form.Item>
                 {packageData.placement === "local" ? (
                     <>
