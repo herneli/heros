@@ -12,6 +12,7 @@ import fileTexts from "./i18n/texts_es.json";
 import Packages from "./modules/packages/Packages";
 import PackageVersion from "./modules/packages/PackageVersion";
 import T from "i18n-react";
+import Home from "./pages/Home";
 // Set axios defauts
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
@@ -25,7 +26,11 @@ function App() {
         <ConfigProvider locale={locale}>
             <Routes>
                 <Route path="/" element={<Layout />}>
-                    <Route index element={<Document documentType="folder" code="root" displayMode="fullScreen" />} />
+                    <Route index element={<Home />} />
+                    <Route
+                        path="doc"
+                        element={<Document documentType="folder" code="root" displayMode="fullScreen" />}
+                    />
                     <Route path="packages">
                         <Route index element={<Packages />} />
                         <Route path={":packageId/versions/:versionId/*"} element={<PackageVersion />} />

@@ -14,6 +14,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(version_router.urls)),
     path('model/<model>/info', views.config_info),
+    path('type/members/',views.get_type_members)
     # path('model/<model>/data', views.config_data_set),
     # path('model/<model>/data/<id>', views.config_data_single),
     # path('object/members', views.get_object_members),

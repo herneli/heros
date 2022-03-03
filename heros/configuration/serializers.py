@@ -1,6 +1,8 @@
 from venv import create
 from django.contrib.auth.models import User, Group
 from django.db import transaction
+from django.utils.translation import gettext as _
+from rest_framework.exceptions import APIException
 from numpy import require
 from rest_framework import serializers
 from heros.configuration.models import Package, PackageVersion ,ConfigDocument, ConfigInfo
@@ -13,6 +15,18 @@ class PacakgeShortSerializer(serializers.ModelSerializer):
 
 class PackageVersionSerializer(serializers.ModelSerializer):
     package = PacakgeShortSerializer()
+
+    def validate_dependencies(self, value):
+        """
+        Check that the blog post is about Django.
+        """
+        packages = []
+        for dependency in value:
+            if dependency.package.id in packages:
+                raise APIException(_("cannot_mix_versions_of_same_package"))
+            packages.append(dependency.package.id)
+        return value
+
     class Meta:
         model = PackageVersion
         fields = "__all__"

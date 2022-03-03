@@ -6,6 +6,7 @@ import { createUseStyles } from "react-jss";
 const useStyles = createUseStyles({
     select: {
         fontWeight: 500,
+        width: "auto",
     },
 });
 
@@ -21,12 +22,6 @@ export default function CombinatorSelect({ value, onChange }) {
     ];
 
     return (
-        <Select
-            value={value}
-            options={options}
-            onSelect={handleOnSelect}
-            bordered={false}
-            className={classes.select}
-        />
+        <Select value={value} options={options} onSelect={handleOnSelect} bordered={false} className={classes.select} />
     );
 }

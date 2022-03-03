@@ -2,8 +2,9 @@ import axios from "axios";
 import React from "react";
 import { useState } from "react";
 import T from "i18n-react";
-import { Form, Input, message, Modal, notification } from "antd";
+import { Form, Input, message, Modal } from "antd";
 import { createUseStyles } from "react-jss";
+import errorHandler from "../configuration/errorHandler";
 
 const useStyles = createUseStyles({
     root: { padding: "20px" },
@@ -29,9 +30,7 @@ export default function PackageVersionCopy({ baseVersion, onOk, onCancel }) {
                 message.info(T.translate("packages.package_version_copy_successful"));
                 onOk && onOk();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.package_version_copy_error") });
-            });
+            .catch(errorHandler(T.translate("packages.package_version_copy_error")));
     };
 
     return (

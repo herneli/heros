@@ -3,8 +3,8 @@ import AntdObjectFieldTemplate from "./AntdObjectFieldTemplate";
 import SelectRemoteWidget from "./SelectRemoteWidget";
 import SelectRemoteWithPackageWidget from "./SelectRemoteWithPackageWidget";
 import AceEditorWidget from "./AceEditorWidget";
-import ScriptField from "./ScriptField";
 import ColorField from "./ColorField";
+import ScriptField from "./ScriptField";
 
 const formOptions = {
     widgets: {
@@ -13,7 +13,7 @@ const formOptions = {
         ColorField,
         AceEditorWidget,
     },
-    fields: { ScriptField },
+    fields: { ScriptField: ScriptField },
     ArrayFieldTemplate: AntdArrayFieldTemplate,
     ObjectFieldTemplate: AntdObjectFieldTemplate,
 };

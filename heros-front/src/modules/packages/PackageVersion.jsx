@@ -67,12 +67,17 @@ export default function PackageVersion() {
                             <Menu.Item key="method">
                                 <Link to={"method"}>{T.translate("packages.methods")}</Link>
                             </Menu.Item>
+                            <Menu.Item key="test_script">
+                                <Link to={"test_script"}>{T.translate("Test script")}</Link>
+                            </Menu.Item>
                         </Menu>
                     </Sider>
                     <Content className={classes.packageContent}>
                         <Routes>
-                            <Route path={":model"} element={<ModelAdminParams />} />
-                            <Route path=":model/:id" element={<ModelEditParams />} />
+                            <Route path={":model"}>
+                                <Route index element={<ModelAdminParams />} />
+                                <Route path=":id" element={<ModelEditParams />} />
+                            </Route>
                         </Routes>
                     </Content>
                 </Layout>

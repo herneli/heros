@@ -1,7 +1,11 @@
-from heros.configuration.models import ConfigDocument, Package, PackageVersion
-from heros.configuration.serializers import ConfigDocumentSerializer
+from django.forms import ValidationError
 from django.db import transaction
 from django.conf import settings
+from django.utils.translation import gettext as _
+from django.utils import translation
+from rest_framework.exceptions import APIException
+from heros.configuration.models import ConfigDocument, Package, PackageVersion
+from heros.configuration.serializers import ConfigDocumentSerializer
 from git import Repo
 from os import path
 import os
@@ -126,7 +130,9 @@ class GitPackage:
         for package,version in dependencies.items():
             existing_version = PackageVersion.objects.filter(package__code=package, version=version).first()
             if not existing_version:
-                raise Exception("Dependency version doesn't exists locally")
+                print("Lang",translation.get_language())
+                text = _("dependency_not_found")
+                raise APIException(_("dependency_not_found") % {"dependency": '"' + package + "/" + version +'"'})
             self.version.dependencies.add(existing_version)
         with transaction.atomic():
             self.version.config_documents.all().delete()

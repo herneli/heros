@@ -81,10 +81,4 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return Response()
 
 
-# class DocumentRelationViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that allows groups to be viewed or edited.
-#     """
-#     queryset = DocumentRelation.objects.all()
-#     serializer_class = DocumentRelationSerializer
-#     # permission_classes = [permissions.IsAuthenticated]        
+  

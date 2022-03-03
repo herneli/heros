@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Row, Spin, Table, Layout, Button, message, notification, Input, Popconfirm } from "antd";
+import { Col, Row, Spin, Table, Layout, Button, message, Input, Popconfirm } from "antd";
 import T from "i18n-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ import PackageNew from "./PackageNew";
 import PackageVersionCopy from "./PackageVersionCopy";
 import PackageVersionImport from "./PackageVersionImport";
 import PackageVersionDependencies from "./PackageVersionDependencies";
+import errorHandler from "../configuration/errorHandler";
 
 const { Search } = Input;
 const { Content } = Layout;
@@ -63,9 +64,7 @@ export default function Packages() {
                 message.info(T.translate("packages.publish_successful"));
                 loadPackages();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.publish_error") });
-            });
+            .catch(errorHandler(T.translate("packages.publish_error")));
     };
 
     const handleOnCopy = (packageVersion) => () => {
@@ -79,9 +78,7 @@ export default function Packages() {
                 message.info(T.translate("packages.import_successful"));
                 loadPackages();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.import_error") });
-            });
+            .catch(errorHandler(T.translate("packages.import_error")));
     };
     const handleOnRefreshStatus = (packageId) => () => {
         axios
@@ -90,9 +87,7 @@ export default function Packages() {
                 message.info(T.translate("packages.remote_status_updated"));
                 loadPackages();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.remote_status_error") });
-            });
+            .catch(errorHandler(T.translate("packages.remote_status_error")));
     };
 
     const handleOnAddPackage = () => {
@@ -114,9 +109,7 @@ export default function Packages() {
                 message.info(T.translate("packages.delete_successful"));
                 loadPackages();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.delete_error") });
-            });
+            .catch(errorHandler(T.translate("packages.delete_error")));
     };
 
     const handleOnDeletePackageVersion = (packageId, id) => () => {
@@ -126,9 +119,7 @@ export default function Packages() {
                 message.info(T.translate("packages.delete_successful"));
                 loadPackages();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.delete_error") });
-            });
+            .catch(errorHandler(T.translate("packages.delete_error")));
     };
 
     const renderExpandable = (packageData) => {

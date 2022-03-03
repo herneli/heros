@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.forms.models import model_to_dict
 from heros.configuration.models import ConfigDocument
+from heros.configuration.utils import unpack_full_code
 
 OBJECT_DOCUMENT_TYPE = 'object'
 METHOD_DOCUMENT_TYPE = 'method'
@@ -161,13 +162,17 @@ def get_user_mail(user):
     return user and user.email
 
 
-def get_object_properties(type):
+def get_type_properties(object_type,packages):
     properties = []
-    if type.get("type") == 'object':
+    if object_type.get("type") == 'object':
         try:
-            document = ConfigDocument.objects.get(
+            package_code, code = unpack_full_code(object_type.get("object_code"))
+            document = ConfigDocument.objects.filter(
                 document_type=OBJECT_DOCUMENT_TYPE,
-                code=type.get("objectCode"))
+                code=code,
+                package_version__package__code=package_code,
+                package_version_id__in=packages
+            ).first()
             if document and document.data:
                 properties = document.data.get("properties")
         except ConfigDocument.DoesNotExist:
@@ -175,34 +180,40 @@ def get_object_properties(type):
     return properties
 
 
-def get_object_methods(type, language):
+def get_type_methods(object_type, packages, language):
     query = ConfigDocument.objects.filter(
-        document_type=METHOD_DOCUMENT_TYPE, data__language=language)
-    if type.get("type") == 'object':
+        document_type=METHOD_DOCUMENT_TYPE, 
+        data__language=language, 
+        package_version_id__in=packages)
+    if object_type.get("type") == 'object':
         query = query.filter(
-            (Q(data__parentType__type=type.get("type")) &
-             Q(data__parentType__objectCode=type.get("objectCode"))) |
-            Q(data__parentType__type="$any") |
-            Q(data__parentType__type="$anyObject")
+            (Q(data__parent_type__type=object_type.get("type")) &
+             Q(data__parent_type__object_code=object_type.get("object_code"))) |
+            Q(data__parent_type__type="$any") |
+            Q(data__parent_type__type="$anyObject")
         )
-    elif type.get("type") == 'array':
+    elif object_type.get("type") == 'array':
         query = query.filter(
-            Q(data__parentType__type=type.get("type")) |
-            Q(data__parentType__type="$any")
+            Q(data__parent_type__type=object_type.get("type")) |
+            Q(data__parent_type__type="$any")
         )
     else:
         query = query.filter(
-            Q(data__parentType__type=type.get("type")) |
-            Q(data__parentType__type="$any") |
-            Q(data__parentType__type="$anyPrimitive")
+            Q(data__parent_type__type=object_type.get("type")) |
+            Q(data__parent_type__type="$any") |
+            Q(data__parent_type__type="$anyPrimitive")
         )
     print(query.query)
     return map(lambda item: item.data, query)
 
 
-def get_object_members(type, language):
-    properties = get_object_properties(type)
-    methods = get_object_methods(type, language)
+def get_type_members(object_type, language, packages, exclude_properties=False, exclude_methods=False):
+    properties = []
+    methods = []
+    if not exclude_properties:
+        properties = get_type_properties(object_type,packages)
+    if not exclude_methods:
+        methods = get_type_methods(object_type, packages, language)
 
     return {"properties": properties, "methods": methods}
 

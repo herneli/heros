@@ -2,8 +2,9 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import T from "i18n-react";
-import { Form, message, Modal, notification, Select } from "antd";
+import { Form, message, Modal, Select } from "antd";
 import { createUseStyles } from "react-jss";
+import errorHandler from "../configuration/errorHandler";
 
 const useStyles = createUseStyles({
     root: { padding: "20px" },
@@ -18,7 +19,7 @@ export default function PackageVersionImport({ packageId, onOk, onCancel }) {
         axios(`/configuration/packages/${packageId}/missing_branches`).then((response) => {
             setVersionOptions(response.data.map((version) => ({ label: version, value: version })));
         });
-    }, []);
+    }, [packageId]);
 
     const handleOnChange = (field) => (value) => {
         setState({ ...state, [field]: value });
@@ -35,9 +36,7 @@ export default function PackageVersionImport({ packageId, onOk, onCancel }) {
                 message.info(T.translate("packages.package_version_import_successful"));
                 onOk && onOk();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.package_version_import_error") });
-            });
+            .catch(errorHandler(T.translate("packages.package_version_import_error")));
     };
 
     return (

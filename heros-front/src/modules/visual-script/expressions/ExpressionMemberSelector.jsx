@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { mdiChevronDown, mdiBackspaceOutline } from "@mdi/js";
 import Icon from "@mdi/react";
-import { List, Button, Popover, Input } from "antd";
+import { List, Button, Popover, Input, Spin } from "antd";
 import { useScriptContext } from "../ScriptContext";
 import getTypeIcon from "../getTypeIcon";
 import MethodEditor from "./MethodEditor";
@@ -167,6 +167,10 @@ export default function ExpressionMemberSelector({
         }
     };
 
+    const handleOnOpenChange = (open) => {
+        onOpenChange(open);
+    };
+
     const handleOnParametersEntered = (member) => {
         setMethodMember(null);
         onSelect(member);
@@ -183,7 +187,7 @@ export default function ExpressionMemberSelector({
 
     const renderMenu = () => {
         if (!membersForType) {
-            return null;
+            return <Spin />;
         }
 
         return (
@@ -223,30 +227,35 @@ export default function ExpressionMemberSelector({
             </div>
         );
     };
+
+    const menu = renderMenu();
     return (
-        <div className={classes.member + " selector"}>
-            <Popover
-                content={renderMenu()}
-                trigger={"click"}
-                visible={open && !methodMember}
-                onVisibleChange={onOpenChange}
-                overlayClassName={classes.propertyPopover}
-                autoAdjustOverflow={true}>
-                <Button
-                    type="text"
-                    icon={<Icon size="14px" path={mdiChevronDown} />}
-                    className={classes.selectorButton}
-                    size="small"
-                />
-            </Popover>
-            {methodMember ? (
-                <MethodEditor
-                    member={methodMember}
-                    variables={variables}
-                    onParametersEntered={handleOnParametersEntered}
-                    onCancel={handleOnCancelMethodEditor}
-                />
-            ) : null}
-        </div>
+        <>
+            <div className={classes.member + " selector"}>
+                <Popover
+                    content={menu}
+                    trigger="click"
+                    visible={open && !methodMember}
+                    onVisibleChange={handleOnOpenChange}
+                    overlayClassName={classes.propertyPopover}
+                    autoAdjustOverflow={true}>
+                    <Button
+                        type="text"
+                        icon={<Icon size="14px" path={mdiChevronDown} />}
+                        className={classes.selectorButton}
+                        size="small"
+                    />
+                </Popover>
+
+                {methodMember ? (
+                    <MethodEditor
+                        member={methodMember}
+                        variables={variables}
+                        onParametersEntered={handleOnParametersEntered}
+                        onCancel={handleOnCancelMethodEditor}
+                    />
+                ) : null}
+            </div>
+        </>
     );
 }

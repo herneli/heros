@@ -73,8 +73,6 @@ class PackageViewSet(viewsets.ModelViewSet):
         return Response(branches)        
 
 
-
-
 class PackageVersionViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
@@ -149,6 +147,18 @@ def config_info(request, model):
     else:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+@api_view(["POST"])
+def get_type_members(request):
+    """
+    Get model information
+    """
+    members = helpers.get_type_members(
+        object_type=request.data.get("type",None),
+        language=request.data.get("language",None),
+        packages=request.data.get("packages",None),
+        exclude_properties=request.data.get("exclude_properties", False),
+        exclude_methods=request.data.get("exclude_methods", False))
+    return Response(members)
 
 class ConfigDocumentViewSet(viewsets.ModelViewSet):
     """

@@ -1,15 +1,25 @@
 import React, { useEffect } from "react";
 import VisualScript from "../visual-script/VisualScript";
-import axios from "axios";
-
+import { Spin } from "antd";
 export default function ScriptField({ name, formData, schema, uiSchema, onChange }) {
     useEffect(() => {
-        if (!formData) {
-            axios.get("/script/new/" + uiSchema["ui:options"].contextCode).then((response) => {
-                onChange(response.data.data);
-            });
+        if (!formData || Object.keys(formData).length === 0) {
+            if (uiSchema["ui:options"] && uiSchema["ui:options"].default) {
+                // If setTimeout is not placed, onchange is not triggering changes - JH
+                setTimeout(() => {
+                    onChange(uiSchema["ui:options"].default);
+                }, 1);
+            }
         }
-    });
+    }, []);
 
-    return <div>{formData ? <VisualScript script={formData} onChange={onChange} /> : null}</div>;
+    if (formData && Object.keys(formData).length !== 0) {
+        return (
+            <div>
+                <VisualScript script={formData} onChange={onChange} />
+            </div>
+        );
+    } else {
+        return <Spin />;
+    }
 }

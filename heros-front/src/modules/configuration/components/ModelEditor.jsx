@@ -42,27 +42,31 @@ export default function ModelEditor({ data, schema, uiSchema, onCancel, onSave, 
     return (
         <div className={classes.tableWrapper}>
             <Button onClick={onCancel}>{T.translate("configuration.return")}</Button>
-            <Form
-                ObjectFieldTemplate={formConfig.ObjectFieldTemplate}
-                ArrayFieldTemplate={formConfig.ArrayFieldTemplate}
-                widgets={formConfig.widgets}
-                schema={schema}
-                uiSchema={uiSchema}
-                formData={currentData}
-                onSubmit={handleOnSave}
-                onChange={(e) => {
-                    setCurrentData({ ...currentData, ...e.formData });
-                    if (onChange) onChange(e);
-                }}>
-                <Row justify="end">
-                    <Space>
-                        <Button onClick={onCancel}>{T.translate("configuration.return")}</Button>
-                        <Button className={classes.rightActions} htmlType="submit" type="primary">
-                            {T.translate("configuration.save")}
-                        </Button>
-                    </Space>
-                </Row>
-            </Form>
+            {currentData ? (
+                <Form
+                    ObjectFieldTemplate={formConfig.ObjectFieldTemplate}
+                    ArrayFieldTemplate={formConfig.ArrayFieldTemplate}
+                    widgets={formConfig.widgets}
+                    fields={formConfig.fields}
+                    schema={schema}
+                    uiSchema={uiSchema}
+                    omitExtraData={false}
+                    formData={currentData}
+                    onSubmit={handleOnSave}
+                    onChange={(e) => {
+                        setCurrentData({ ...currentData, ...e.formData });
+                        if (onChange) onChange(e);
+                    }}>
+                    <Row justify="end">
+                        <Space>
+                            <Button onClick={onCancel}>{T.translate("configuration.return")}</Button>
+                            <Button className={classes.rightActions} htmlType="submit" type="primary">
+                                {T.translate("configuration.save")}
+                            </Button>
+                        </Space>
+                    </Row>
+                </Form>
+            ) : null}
         </div>
     );
 }

@@ -2,8 +2,9 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import T from "i18n-react";
-import { Form, message, Modal, notification, Select } from "antd";
+import { Form, message, Modal, Select } from "antd";
 import { createUseStyles } from "react-jss";
+import errorHandler from "../configuration/errorHandler";
 
 const useStyles = createUseStyles({
     root: { padding: "20px" },
@@ -43,9 +44,7 @@ export default function PackageVersionDependencies({ version, onOk, onCancel }) 
                 message.info(T.translate("packages.package_version_update_success"));
                 onOk && onOk();
             })
-            .catch((error) => {
-                notification.error({ message: T.translate("packages.package_version_update_error") });
-            });
+            .catch(errorHandler(T.translate("packages.package_version_update_error")));
     };
 
     return (

@@ -30,7 +30,7 @@ const ModelEdit = ({ model, onElementLoad }) => {
                 modelInfo: modelConfig,
             });
         } catch (ex) {
-            errorHandler(ex);
+            errorHandler()(ex);
         }
     }, [model]);
     const loadElement = useCallback(async () => {
@@ -57,9 +57,9 @@ const ModelEdit = ({ model, onElementLoad }) => {
         try {
             await api.saveModelData(model, formData, packageData, overwrite);
 
-            navigate("../" + model);
+            navigate("..");
         } catch (ex) {
-            errorHandler(ex);
+            errorHandler()(ex);
         }
     };
 
@@ -73,10 +73,7 @@ const ModelEdit = ({ model, onElementLoad }) => {
                     uiSchema={modelInfo.uiSchema}
                     data={edit}
                     onCancel={() => {
-                        navigate(".");
-                    }}
-                    onClose={() => {
-                        setEdit(null);
+                        navigate("..");
                     }}
                     onChange={({ formData }) => onElementLoad && onElementLoad(formData)}
                     onSave={handleOnSave}

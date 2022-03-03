@@ -1,0 +1,72 @@
+{
+    "name": "Contexto",
+    "documentType": "test_script",
+    "listFields": [
+        {
+            "title": "Código",
+            "field": "code"
+        },
+        {
+            "title": "Nombre",
+            "field": "name"
+        }
+    ],
+    "schema": {
+        "type": "object",
+        "properties": {
+            "code": { "title": "Código", "type": "string", "pattern": "^[a-zA-Z_$][a-zA-Z_$0-9]*$" },
+            "name": {
+                "type": "string",
+                "title": "Nombre"
+            },
+            "script": {
+                "title": "Código",
+                "type": "object"
+            }
+        }
+    },
+    "uiSchema": {
+        "code": {
+            "ui:columnSize": "4"
+        },
+        "name": {
+            "ui:columnSize": "4"
+        },
+        "script": {
+            "ui:field": "ScriptField",
+            "ui:options": {
+                "default": {
+                    "contextCode": "darvel.test.context_demo_python",
+                    "contextMember": {
+                        "memberType": "context",
+                        "code": "context",
+                        "name": "context",
+                        "type": {
+                            "type": "object",
+                            "objectCode": "darvel.test.context_demo"
+                        }
+                    },
+                    "language": "python",
+                    "mainStatement": {
+                        "id": "main-block",
+                        "type": "block",
+                        "main": true,
+                        "variables": {},
+                        "nestedStatements": [
+                            {
+                                "id": "start",
+                                "type": "start",
+                                "name": "Inicio"
+                            },
+                            {
+                                "id": "end",
+                                "type": "end",
+                                "name": "Fin"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

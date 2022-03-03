@@ -1,10 +1,11 @@
 import React from "react";
-import { Form, Input, message, Modal, Select, notification } from "antd";
+import { Form, Input, message, Modal, Select } from "antd";
 import T from "i18n-react";
 import { useState } from "react";
 import { createUseStyles } from "react-jss";
 import { useEffect } from "react";
 import axios from "axios";
+import errorHandler from "../configuration/errorHandler";
 
 const useStyles = createUseStyles({
     root: { padding: "20px" },
@@ -53,9 +54,7 @@ export default function PackageNew({ onCancel, onCreate }) {
                     message.info(T.translate("packages.package_save_successful"));
                     onCreate && onCreate();
                 })
-                .catch((error) => {
-                    notification.error({ message: T.translate("packages.package_save_error") });
-                });
+                .catch(errorHandler(T.translate("packages.package_save_error")));
         } else {
             if (!packageData.code || !packageData.name) {
                 message.error(T.translate("packages.enter_required_fields"));
@@ -72,9 +71,7 @@ export default function PackageNew({ onCancel, onCreate }) {
                     message.info(T.translate("packages.package_save_successful"));
                     onCreate && onCreate();
                 })
-                .catch((error) => {
-                    notification.error({ message: T.translate("packages.package_save_error") });
-                });
+                .catch(errorHandler(T.translate("packages.package_save_error")));
         }
     };
 

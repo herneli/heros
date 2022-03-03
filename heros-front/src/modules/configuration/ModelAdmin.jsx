@@ -28,7 +28,7 @@ const ModelAdmin = ({ buttonsConfig, model }) => {
                     modelData: modelData,
                 });
             } catch (ex) {
-                errorHandler(ex);
+                errorHandler()(ex);
             }
         },
         [model, packageData]
@@ -61,7 +61,7 @@ const ModelAdmin = ({ buttonsConfig, model }) => {
     };
 
     const setEditData = async (data) => {
-        navigate(`../${model}/${data.id}`);
+        navigate(`./${data.id}`);
     };
 
     const handleOnSave = async (formData, overwrite = false) => {
@@ -69,7 +69,7 @@ const ModelAdmin = ({ buttonsConfig, model }) => {
             await api.saveModelData(model, formData, packageData, overwrite);
             await search();
         } catch (ex) {
-            errorHandler(ex);
+            errorHandler()(ex);
         }
     };
 
@@ -78,7 +78,7 @@ const ModelAdmin = ({ buttonsConfig, model }) => {
             await api.saveModelData(model, formData, packageData, overwrite);
             return true;
         } catch (ex) {
-            errorHandler(ex);
+            errorHandler()(ex);
         }
     };
 
