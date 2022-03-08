@@ -2,6 +2,7 @@ import { Spin } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import DocumentRegistry from "./DocumentRegistry";
+import DocumentSettings from "./DocumentSettings";
 
 const registry = new DocumentRegistry();
 
@@ -17,6 +18,7 @@ const registry = new DocumentRegistry();
  */
 export default function Document({ id, documentType, code, document, displayMode = "fullScreen" }) {
     const [documentState, setDocumentState] = useState();
+    const [settingsVisible, setSettingsVisible] = useState(false);
     useEffect(() => {
         if (document) {
             setDocumentState(document);
@@ -31,20 +33,26 @@ export default function Document({ id, documentType, code, document, displayMode
         }
     }, [document, id, documentType, code]);
 
+    const handleOnShowSettings = (visible) => {
+        setSettingsVisible(visible);
+    };
+
     if (!documentState) {
         return <Spin />;
     }
 
     const documentRegistry = registry.getRegistry(documentState.documentType);
-    let Component;
-    switch (displayMode) {
-        case "fullScreen":
-            Component = documentRegistry.FullScreen;
-            return <Component document={documentState} displayMode={displayMode} />;
-        case "card":
-            Component = documentRegistry.Card;
-            return <Component document={documentState} displayMode={displayMode} />;
-        default:
-            throw Error(`Display mode ${displayMode} not expected`);
+    try {
+        const Component = documentRegistry.displayModes[displayMode];
+        return (
+            <>
+                <Component document={documentState} displayMode={displayMode} onShowSettings={handleOnShowSettings} />
+                {settingsVisible ? (
+                    <DocumentSettings document={documentState} onClose={() => handleOnShowSettings(false)} />
+                ) : null}
+            </>
+        );
+    } catch {
+        throw Error(`Display mode ${displayMode} not expected`);
     }
 }

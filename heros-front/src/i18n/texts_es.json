@@ -13,6 +13,7 @@
         "delete_successful": "Borrado con éxito",
         "delete_error": "Error al borrar",
         "dependencies": "Dependencias",
+        "document_package_not_found": "Paquete para gestión de documentos no encontrado",
         "enter_required_fields": "Introduzca todos los campos obligatorios",
         "id": "Id",
         "import": "Importar",

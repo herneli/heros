@@ -10,38 +10,40 @@ const arrowOverlay = {
     location: 1,
 };
 export default class ScriptManager {
-    constructor({ contextMember, language }, containerId) {
+    constructor({ contextMember, language, mode = "code" }, containerId = null) {
         this.contextMember = contextMember;
         this.language = language;
         this.jsplumb = null;
-        this.statementRegistry = statementRegistry;
+        this.statementRegistry = statementRegistry[mode];
         this.statementClipboard = null;
-        ready(() => {
-            if (!this.jsplumb) {
-                this.jsplumb = newInstance({
-                    container: document.getElementById(containerId),
-                    connector: {
-                        type: FlowchartConnector.type,
-                        options: {
-                            cornerRadius: 4,
-                            midpoint: 1,
-                            stub: 10,
-                            alwaysRespectStubs: true,
+        if (containerId) {
+            ready(() => {
+                if (!this.jsplumb) {
+                    this.jsplumb = newInstance({
+                        container: document.getElementById(containerId),
+                        connector: {
+                            type: FlowchartConnector.type,
+                            options: {
+                                cornerRadius: 4,
+                                midpoint: 1,
+                                stub: 10,
+                                alwaysRespectStubs: true,
+                            },
                         },
-                    },
-                    // anchor: ["Top", "Bottom"],
-                    anchor: [
-                        [0.5, 0, 0, -1],
-                        [0.5, 1, 0, 1],
-                    ],
-                    endpoint: "Blank",
-                    paintStyle: {
-                        stroke: "lightgray",
-                        strokeWidth: "2px",
-                    },
-                });
-            }
-        });
+                        // anchor: ["Top", "Bottom"],
+                        anchor: [
+                            [0.5, 0, 0, -1],
+                            [0.5, 1, 0, 1],
+                        ],
+                        endpoint: "Blank",
+                        paintStyle: {
+                            stroke: "lightgray",
+                            strokeWidth: "2px",
+                        },
+                    });
+                }
+            });
+        }
     }
 
     newId() {

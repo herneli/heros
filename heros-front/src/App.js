@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import axios from "axios";
 import { ConfigProvider } from "antd";
-import Document from "./documents/Document";
+import Document from "./modules/documents/Document";
 import { Spin } from "antd";
 import { useEffect, useState } from "react";
 import fileTexts from "./i18n/texts_es.json";
@@ -13,6 +13,7 @@ import Packages from "./modules/packages/Packages";
 import PackageVersion from "./modules/packages/PackageVersion";
 import T from "i18n-react";
 import Home from "./pages/Home";
+import DocumentWrapper from "./modules/documents/DocumentWrapper";
 // Set axios defauts
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
@@ -27,10 +28,13 @@ function App() {
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
-                    <Route
-                        path="doc"
-                        element={<Document documentType="folder" code="root" displayMode="fullScreen" />}
-                    />
+                    <Route path="/documents" element={<DocumentWrapper />}>
+                        <Route
+                            index
+                            element={<Document documentType="folder" code="root" displayMode="fullScreen" />}
+                        />
+                    </Route>
+
                     <Route path="packages">
                         <Route index element={<Packages />} />
                         <Route path={":packageId/versions/:versionId/*"} element={<PackageVersion />} />

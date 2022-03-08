@@ -70,7 +70,11 @@ class PackageViewSet(viewsets.ModelViewSet):
         package = Package.objects.get(pk=pk)
         repo = GitPackage(package)
         branches = repo.get_available_branches()
-        return Response(branches)        
+        return Response(branches)
+
+    @action(methods=['get'], detail=False)
+    def version_by_code(self, request, pk=None):
+        pass
 
 
 class PackageVersionViewSet(viewsets.ModelViewSet):
@@ -130,6 +134,18 @@ class PackageVersionViewSet(viewsets.ModelViewSet):
         repo = GitPackage(version.package, version)
         repo.import_remote_package()
         return Response("Done")        
+
+class VersionViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows groups to be viewed or edited.
+    """
+    queryset = PackageVersion.objects.filter()
+    serializer_class = PackageVersionSerializer
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
+    filterset_fields = {
+        'package__code': ["exact"],
+        'version': ['exact'],
+    }
 
 
 

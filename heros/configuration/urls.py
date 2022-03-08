@@ -6,6 +6,7 @@ from . import views
 
 router = routers.SimpleRouter()
 router.register(r'packages', views.PackageViewSet)
+router.register(r'versions', views.VersionViewSet)
 version_router = routers.NestedSimpleRouter(router, r'packages', lookup='package')
 version_router.register(r'versions', views.PackageVersionViewSet, basename='pacakge-versions')
 

@@ -9,11 +9,7 @@ export default function Folder({ document }) {
                 {document.relationsAsBase
                     .filter((doc) => doc.relation === "children")
                     .map((doc) => {
-                        return (
-                            <li key={doc.id}>
-                                <Document document={doc.documentRelated} displayMode="card" />
-                            </li>
-                        );
+                        return <Document key={doc.id} document={doc.documentRelated} displayMode="card" />;
                     })}
             </ul>
         </div>

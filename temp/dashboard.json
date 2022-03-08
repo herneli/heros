@@ -1,0 +1,27 @@
+{
+    "documents": [
+        {
+            "id": 1,
+            "documentType": "dashboard",
+            "code": "patient_360"
+        },
+        {
+            "id": 2,
+            "documentType": "lab_results",
+            "code": "lab_results01",
+            "data": {}
+        }
+    ],
+    "relations": [
+        {
+            "base": 1,
+            "related": 2,
+            "relation": "component",
+            "data": {
+                "parameters": {
+                    "patient": { "$exp": ["base", "variables", "patient"] }
+                }
+            }
+        }
+    ]
+}

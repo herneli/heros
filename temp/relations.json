@@ -1,0 +1,6 @@
+{
+    "relationsAsBase": [
+        { "documentRelatedId": 2, "relation": "children" },
+        { "documentRelatedId": 3, "relation": "children" }
+    ]
+}

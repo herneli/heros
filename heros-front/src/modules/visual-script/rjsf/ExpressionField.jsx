@@ -20,6 +20,9 @@ export default function ExpressionField({ name, formData, schema, uiSchema, onCh
     };
 
     let { variables, expectedType, hideLabel } = getUiOptions(uiSchema);
+    if (!variables) {
+        variables = {};
+    }
     let expression = formData.$exp || manager.newExpression();
 
     if (!hideLabel) {

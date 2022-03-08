@@ -26,6 +26,9 @@ export default function CustomLayout() {
                     <Menu.Item key="home">
                         <Link to="/">Inicio</Link>
                     </Menu.Item>
+                    <Menu.Item key="documents">
+                        <Link to="/documents">Documentos</Link>
+                    </Menu.Item>
                     <Menu.Item key="packages">
                         <Link to="/packages">Packages</Link>
                     </Menu.Item>

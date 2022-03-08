@@ -185,7 +185,7 @@ class OneOfExpressionField extends Component {
                     <Select onSelect={this.onOptionChange} value={selectedOption} bordered={false}>
                         {enumOptions.map((enumOption) => {
                             return (
-                                <Select.Option value={enumOption.value}>
+                                <Select.Option key={enumOption.value} value={enumOption.value}>
                                     <Icon className={classes.selectorIcon} path={enumOption.iconPath} size="18px" />
                                 </Select.Option>
                             );

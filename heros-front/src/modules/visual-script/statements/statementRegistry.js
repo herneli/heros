@@ -7,13 +7,24 @@ import startRegistry from "./StatementStart";
 import endRegistry from "./StatementEnd";
 
 const statementRegistry = {
-    block: blockRegistry,
-    comment: commentRegistry,
-    expressionGroup: expressionGroupRegistry,
-    condition: conditionRegistry,
-    loop: loopRegistry,
-    start: startRegistry,
-    end: endRegistry,
+    code: {
+        block: blockRegistry,
+        comment: commentRegistry,
+        expressionGroup: expressionGroupRegistry,
+        condition: conditionRegistry,
+        loop: loopRegistry,
+        start: startRegistry,
+        end: endRegistry,
+    },
+    workflow: {
+        block: blockRegistry,
+        comment: commentRegistry,
+        expressionGroup: expressionGroupRegistry,
+        condition: conditionRegistry,
+        loop: loopRegistry,
+        start: startRegistry,
+        end: endRegistry,
+    },
 };
 
 export default statementRegistry;

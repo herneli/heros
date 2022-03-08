@@ -1,6 +1,6 @@
 import { isObject } from "@rjsf/core/lib/utils";
 
-const convertToExpressionSchema = (schema, uiSchema, variables) => {
+const convertToExpressionSchema = (schema, uiSchema = {}, variables = {}) => {
     if (schema.type === "object" && isObject(schema.properties)) {
         let expSchema = {
             type: "object",

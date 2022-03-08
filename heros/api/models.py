@@ -20,6 +20,7 @@ class DocumentRelation(models.Model):
     document_base = models.ForeignKey(Document, on_delete=models.CASCADE,related_name="relations_as_base") 
     document_related = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="relations_as_related")
     relation = models.CharField(max_length=30)
+    data = models.JSONField()
 
     def __str__(self):
         return (
