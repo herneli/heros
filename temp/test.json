@@ -1,0 +1,19 @@
+{
+    "properties": [
+        {
+            "type": { "type": "object", "object_code": "orders.patient" },
+            "code": "patient",
+            "name": "Paciente",
+            "complexity_level": 1
+        },
+        { "type": { "type": "date" }, "code": "date", "name": "Fecha", "complexity_level": 1 },
+        {
+            "type": { "type": "array", "items": { "type": "object", "object_code": "order.test" } },
+            "code": "tests",
+            "name": "Tests",
+            "complexity_level": 1
+        }
+    ],
+    "code": "order",
+    "name": "Petici\u00f3n"
+}

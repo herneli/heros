@@ -8,7 +8,30 @@
         {
             "id": 2,
             "documentType": "lab_results",
-            "code": "lab_results01",
+            "code": "lab_results_lab",
+            "data": {
+                "tests": ["GLU", "K", "HDL"],
+                "dateFrom": ["context", "functons", "today", "subs -1month"],
+                "dateTo": ["context", "functons", "today"]
+            }
+        },
+        {
+            "id": 3,
+            "documentType": "lab_results",
+            "code": "lab_results_micro",
+            "data": { "tests": ["PCR", "CULT"] }
+        },
+        {
+            "id": 4,
+            "documentType": "file",
+            "code": "att1",
+            "data": {}
+        },
+
+        {
+            "id": 5,
+            "documentType": "file",
+            "code": "att2",
             "data": {}
         }
     ],

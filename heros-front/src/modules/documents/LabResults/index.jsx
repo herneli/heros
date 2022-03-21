@@ -12,6 +12,7 @@ const registry = {
         properties: {
             name: { type: "string", title: "Nombre" },
             patient: { type: "string", title: "Paciente" },
+            testList: { type: "array", item: { type: "string" } },
             dateFrom: { type: "date", title: "Fecha desde" },
             dateTo: { type: "date", title: "Fecha hasta" },
         },

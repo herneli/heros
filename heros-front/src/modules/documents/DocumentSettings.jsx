@@ -17,6 +17,8 @@ export default function DocumentSettings({ document, onClose }) {
             documentRegistry.settingsUiSchema,
             {}
         );
+        // const schema = documentRegistry.settingsSchema;
+        // const uiSchema = documentRegistry.settingsUiSchema;
         setState({ schema, uiSchema, data: { id: document.id, code: document.code, ...document.data } });
     }, [document.documentType]);
 

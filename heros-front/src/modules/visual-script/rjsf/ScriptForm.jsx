@@ -4,12 +4,14 @@ import formConfig from "../../rjsf";
 import OneOfExpressionField from "./OneOfExpressionField";
 import ExpressionField from "./ExpressionField";
 import LogWidget from "./LogWidget";
+import SchemaFieldExpression from "./SchemaFieldExpression";
 
 export default function ScriptForm(props) {
     let scriptWidgets = {
         LogWidget: LogWidget,
     };
     let scriptFields = {
+        SchemaField: SchemaFieldExpression,
         OneOfField: OneOfExpressionField,
         ExpressionField: ExpressionField,
     };

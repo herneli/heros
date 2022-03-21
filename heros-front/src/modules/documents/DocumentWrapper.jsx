@@ -14,7 +14,7 @@ const manager = new ScriptManager({
         name: "context",
         type: {
             type: "object",
-            objectCode: "darvel.test.context_demo",
+            objectCode: "orders.order_context",
         },
     },
     language: "python",

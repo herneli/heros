@@ -39,6 +39,7 @@ function App() {
                         <Route index element={<Packages />} />
                         <Route path={":packageId/versions/:versionId/*"} element={<PackageVersion />} />
                     </Route>
+                    <Route path="demo" element={<Document documentType="folder" code="root" displayMode="card" />} />
                 </Route>
             </Routes>
         </ConfigProvider>

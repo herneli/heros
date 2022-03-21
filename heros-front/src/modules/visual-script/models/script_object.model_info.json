@@ -164,6 +164,13 @@
                     "objectCode": {
                         "ui:widget": "SelectRemoteWithPackageWidget",
                         "ui:selectOptions": "/configuration/model/object/#path=results&value=fullCode&label=data.name"
+                    },
+                    "items": {
+                        "ui:withBorder": true,
+                        "objectCode": {
+                            "ui:widget": "SelectRemoteWithPackageWidget",
+                            "ui:selectOptions": "/configuration/model/object/#path=results&value=fullCode&label=data.name"
+                        }
                     }
                 }
             }

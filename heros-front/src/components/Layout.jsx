@@ -32,6 +32,9 @@ export default function CustomLayout() {
                     <Menu.Item key="packages">
                         <Link to="/packages">Packages</Link>
                     </Menu.Item>
+                    <Menu.Item key="demo">
+                        <Link to="/demo">Demo</Link>
+                    </Menu.Item>
                 </Menu>
             </Header>
             <Content className={classes.content}>
